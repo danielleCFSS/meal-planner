@@ -15,6 +15,10 @@
     {
       "name": "Proper spaghetti pasta",
       "qty": "2 packs"
+    },
+    {
+      "name": "Rubbish spaghetti pasta",
+      "qty": "3 packs"
     }
   ],
   "freezer": []
