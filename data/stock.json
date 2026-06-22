@@ -3,6 +3,10 @@
     {
       "name": "Basmati rice",
       "qty": "Half a bag"
+    },
+    {
+      "name": "Bulgar wheat",
+      "qty": "3.5 packs"
     }
   ],
   "freezer": []
