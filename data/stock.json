@@ -1,7 +1,8 @@
 {
   "cupboards": [
     {
-      "name": "Basmati rice"
+      "name": "Basmati rice",
+      "qty": "Half a bag"
     }
   ],
   "freezer": []
