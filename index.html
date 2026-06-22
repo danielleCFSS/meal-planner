@@ -165,7 +165,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     const [tokenDraft, setTokenDraft] = useState("");
     const [sync, setSync] = useState("");
     const [overrides, setOverrides] = useState({});
-    const [newStock, setNewStock] = useState({ cupboards: "", freezer: "" });
+    const [newStock, setNewStock] = useState({ cupboards: { name: "", qty: "" }, freezer: { name: "", qty: "" } });
     const [newNext, setNewNext] = useState("");
     const [drag, setDrag] = useState(null);
     const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
@@ -373,13 +373,21 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
       setTokenDraft("");
       setSync(t ? "Token saved. Your lists will now sync." : "Token cleared.");
     };
-    const addStock = (section, name) => {
+    const addStock = (section, name, qty) => {
       const v = (name || "").trim();
       if (!v) return;
-      persistStock({ ...stock, [section]: [...stock[section] || [], { name: v }] });
+      persistStock({ ...stock, [section]: [...stock[section] || [], { name: v, qty: (qty || "").trim() }] });
     };
     const removeStock = (section, idx) => {
       persistStock({ ...stock, [section]: (stock[section] || []).filter((_, i) => i !== idx) });
+    };
+    const editStockQty = (section, idx, val) => setStock((s) => ({ ...s, [section]: (s[section] || []).map((it, i) => i === idx ? { ...typeof it === "string" ? { name: it } : it, qty: val } : it) }));
+    const saveStockNow = () => {
+      lsSet("mealplanner:stock", stock);
+      if (token) {
+        setSync("Saving...");
+        ghWriteJSON("stock.json", stock, token).then(() => setSync("Saved to all your devices")).catch(() => setSync("Saved on this device (add your token to sync)"));
+      } else setSync("Saved on this device. Add your token to sync.");
     };
     const addNext = (name) => {
       const v = (name || "").trim();
@@ -558,6 +566,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
 .mp-toggle[data-on="1"]{background:var(--clay);color:#F6F3EA;border-color:var(--clay);}
 .mp-sync{font-size:12px;color:var(--muted);margin:8px 0;}
 .mp-tokenbox{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-bottom:16px;}
+.mp-qtyinput{font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:96px;flex-shrink:0;}
 `;
     if (!loaded) {
       return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("style", null, css), /* @__PURE__ */ React.createElement("div", { className: "mp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "mp-head" }, /* @__PURE__ */ React.createElement("div", { className: "mp-eyebrow" }, "This week"), /* @__PURE__ */ React.createElement("div", { className: "mp-title" }, "Laying the table..."))));
@@ -664,23 +673,49 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
       }
       setTokenState("");
       setSync("Token removed from this device.");
-    } }, "Remove token from this device")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Paste your GitHub token once on this device to sync your stock and lists, and so Lucy can read them. It is kept only on this device."), /* @__PURE__ */ React.createElement("div", { className: "mp-row" }, /* @__PURE__ */ React.createElement("input", { className: "mp-input", placeholder: "github_pat_...", value: tokenDraft, onChange: (e) => setTokenDraft(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: saveTokenNow }, "Save")))), ["cupboards", "freezer"].map((section) => /* @__PURE__ */ React.createElement("div", { className: "mp-stocksec", key: section }, /* @__PURE__ */ React.createElement("div", { className: "mp-aisle" }, section === "cupboards" ? "Cupboards" : "Freezer"), (stock[section] || []).length === 0 && /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Nothing logged yet."), (stock[section] || []).map((it, idx) => /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: idx }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, typeof it === "string" ? it : it.name), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeStock(section, idx) }, /* @__PURE__ */ React.createElement(X, { size: 15 })))), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 10 } }, /* @__PURE__ */ React.createElement(
+    } }, "Remove token from this device")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Paste your GitHub token once on this device to sync your stock and lists, and so Lucy can read them. It is kept only on this device."), /* @__PURE__ */ React.createElement("div", { className: "mp-row" }, /* @__PURE__ */ React.createElement("input", { className: "mp-input", placeholder: "github_pat_...", value: tokenDraft, onChange: (e) => setTokenDraft(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: saveTokenNow }, "Save")))), ["cupboards", "freezer"].map((section) => /* @__PURE__ */ React.createElement("div", { className: "mp-stocksec", key: section }, /* @__PURE__ */ React.createElement("div", { className: "mp-aisle" }, section === "cupboards" ? "Cupboards" : "Freezer"), (stock[section] || []).length === 0 && /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Nothing logged yet."), (stock[section] || []).map((it, idx) => {
+      const item = typeof it === "string" ? { name: it } : it;
+      return /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: idx }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, item.name), /* @__PURE__ */ React.createElement(
+        "input",
+        {
+          className: "mp-qtyinput",
+          placeholder: "how much",
+          value: item.qty || "",
+          onChange: (e) => editStockQty(section, idx, e.target.value),
+          onBlur: saveStockNow
+        }
+      ), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeStock(section, idx) }, /* @__PURE__ */ React.createElement(X, { size: 15 })));
+    }), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 10 } }, /* @__PURE__ */ React.createElement(
       "input",
       {
         className: "mp-input",
         placeholder: section === "cupboards" ? "Add a cupboard item" : "Add a freezer item",
-        value: newStock[section],
-        onChange: (e) => setNewStock((s) => ({ ...s, [section]: e.target.value })),
+        value: newStock[section].name,
+        onChange: (e) => setNewStock((s) => ({ ...s, [section]: { ...s[section], name: e.target.value } })),
         onKeyDown: (e) => {
           if (e.key === "Enter") {
-            addStock(section, newStock[section]);
-            setNewStock((s) => ({ ...s, [section]: "" }));
+            addStock(section, newStock[section].name, newStock[section].qty);
+            setNewStock((s) => ({ ...s, [section]: { name: "", qty: "" } }));
+          }
+        }
+      }
+    ), /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        className: "mp-qtyinput",
+        placeholder: "how much",
+        value: newStock[section].qty,
+        onChange: (e) => setNewStock((s) => ({ ...s, [section]: { ...s[section], qty: e.target.value } })),
+        onKeyDown: (e) => {
+          if (e.key === "Enter") {
+            addStock(section, newStock[section].name, newStock[section].qty);
+            setNewStock((s) => ({ ...s, [section]: { name: "", qty: "" } }));
           }
         }
       }
     ), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: () => {
-      addStock(section, newStock[section]);
-      setNewStock((s) => ({ ...s, [section]: "" }));
+      addStock(section, newStock[section].name, newStock[section].qty);
+      setNewStock((s) => ({ ...s, [section]: { name: "", qty: "" } }));
     } }, "Add")))), sync && /* @__PURE__ */ React.createElement("div", { className: "mp-sync" }, sync)), tab === "next" && /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Jot anything you run out of during the week. Lucy folds it into next week's shop and clears the list."), (nextWeek || []).length === 0 && /* @__PURE__ */ React.createElement("div", { className: "mp-empty" }, "Nothing on the list yet."), (nextWeek || []).map((it, idx) => /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: idx }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, it), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeNext(idx) }, /* @__PURE__ */ React.createElement(X, { size: 15 })))), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 12 } }, /* @__PURE__ */ React.createElement(
       "input",
       {
