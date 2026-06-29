@@ -440,7 +440,47 @@
     var rt=document.getElementById("rewardtaken"); if(rt) rt.onclick=function(){ var p=P(); p.reward.taken=!p.reward.taken; savePers(p); cloudPush(); renderPersonal(); };
     var no=document.getElementById("nourish"); if(no) no.onclick=function(){ var pool=nourishPool.slice(); var lib=loadLib(); ["watch","read","listen"].forEach(function(k){ (lib[k]||[]).filter(function(i){return !i.done;}).forEach(function(i){ pool.push(i.title); }); }); for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; } persSugg=pool.slice(0,3); renderPersonal(); };
   }
-  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else if(state.tab==="personal") renderPersonal(); else renderPlaceholder(state.tab); }
+  function mondayOfWeek(d){ var x=new Date(d); var wd=(x.getDay()+6)%7; x.setDate(x.getDate()-wd); x.setHours(0,0,0,0); return x; }
+  function plannerWeekItems(date){
+    var wd=date.getDay(); var out=[];
+    if(wd===1) out.push("Meal plan + food shop");
+    if(wd===2) out.push("Washing on");
+    if(wd===3){ out.push("Put away + iron"); var anchor=new Date(2026,6,8); var weeks=Math.round((date-anchor)/(7*86400000)); if(((weeks%2)+2)%2===0) out.push("Cleaner comes"); }
+    if(wd===4){ out.push("Bins out"); if(date.getDate()<=7) out.push("Strip the bed"); out.push("Tan"); }
+    var nb=new Date(2026,6,17); var diff=Math.round((date-nb)/86400000); if(diff>=0 && diff%14===0) out.push("Nails");
+    return out;
+  }
+  function comingUp(){
+    var items=[]; var today=new Date(); today.setHours(0,0,0,0); var end=new Date(today.getTime()+28*86400000);
+    function add(d,label){ if(d>=today && d<=end) items.push({d:d,label:label}); }
+    for(var k=0;k<6;k++){ add(new Date(2026,6,17+14*k),"Nails"); }
+    add(new Date(2026,6,22),"Book botox (for ~5 Aug)");
+    add(new Date(2026,7,5),"Botox");
+    for(var c=0;c<6;c++){ add(new Date(2026,6,8+14*c),"Cleaner comes"); }
+    items.sort(function(a,b){return a.d-b.d;});
+    return items;
+  }
+  function renderPlanner(){
+    var P=loadPers();
+    var priority=(P.goals&&P.goals[0])?P.goals[0].text:null;
+    var ws=mondayOfWeek(new Date());
+    var DOWS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+    var h='<header class="top"><p class="hi">Planner</p><div class="date">Your week & what\'s coming</div></header><div class="wrap">';
+    h+='<h1 class="section">This week at a glance</h1><div class="card">';
+    h+='<p style="font-size:13px;color:var(--green2);margin:0 2px 6px"><b>Priority:</b> '+(priority?priority:"set at the Monday plan")+'</p><ul class="steps">';
+    var todK=(new Date()).toDateString();
+    for(var i=0;i<7;i++){ var dd=new Date(ws); dd.setDate(ws.getDate()+i); var its=plannerWeekItems(dd); var isTod=dd.toDateString()===todK;
+      h+='<li style="display:block"><span class="lab" style="font-weight:700;color:'+(isTod?"var(--terra)":"var(--green)")+'">'+DOWS[i]+' '+dd.getDate()+'</span> <span style="font-size:13.5px;color:var(--ink)">'+(its.length?its.join(" \u00B7 "):"\u2014")+'</span></li>';
+    }
+    h+='</ul><p style="font-size:12px;color:var(--taupe);margin:8px 2px 0">Your calendar appointments drop in here at the weekly refresh.</p></div>';
+    h+='<h1 class="section">Coming up (next 4 weeks)</h1><div class="card">';
+    var cu=comingUp();
+    if(cu.length){ h+='<ul class="steps">'; cu.forEach(function(it){ h+='<li style="display:block"><span class="lab" style="font-weight:700;color:var(--green2)">'+it.d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+'</span> <span style="font-size:13.5px">'+it.label+'</span></li>'; }); h+='</ul>'; }
+    else { h+='<p style="color:var(--taupe);font-size:13px">Nothing dated in the next four weeks.</p>'; }
+    h+='</div><div class="sync" id="syncline"></div></div>';
+    document.getElementById("app").innerHTML=h; renderSync();
+  }
+  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else if(state.tab==="personal") renderPersonal(); else if(state.tab==="planner") renderPlanner(); else renderPlaceholder(state.tab); }
 
   cloudPull().then(route).catch(route);
   route();
