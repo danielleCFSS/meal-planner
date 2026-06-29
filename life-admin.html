@@ -116,6 +116,9 @@
   var PERS="lifeadmin:personal";
   function loadPers(){ try{ var v=JSON.parse(localStorage.getItem(PERS)); return v||{upkeep:{},goals:[],reward:{text:"",taken:false}}; }catch(e){ return {upkeep:{},goals:[],reward:{text:"",taken:false}}; } }
   function savePers(p){ try{ localStorage.setItem(PERS, JSON.stringify(p)); }catch(e){} }
+  var HREF="lifeadmin:homeref";
+  function loadHomeref(){ try{ return JSON.parse(localStorage.getItem(HREF))||{done:{}}; }catch(e){ return {done:{}}; } }
+  function saveHomeref(r){ try{ localStorage.setItem(HREF, JSON.stringify(r)); }catch(e){} }
   var syncState="idle";
   async function cloudPull(){
     try{ var r=await fetch(RAW+DATA_FILE+"?t="+Date.now(),{cache:"no-store"});
@@ -124,6 +127,7 @@
         if(j.tasks){ var lt=loadTasks(); for(var k in j.tasks){ if(!lt[k]||!lt[k].length) lt[k]=j.tasks[k]; } saveTasks(lt); }
         if(j.library){ var ll=loadLib(); for(var k2 in j.library){ if(!ll[k2]||!ll[k2].length) ll[k2]=j.library[k2]; } saveLib(ll); }
         if(j.personal && !localStorage.getItem(PERS)){ savePers(j.personal); }
+        if(j.homeref && !localStorage.getItem(HREF)){ saveHomeref(j.homeref); }
       } } }catch(e){}
   }
   async function cloudPush(){
@@ -133,7 +137,7 @@
       var sha=null;
       try{ var g=await fetch(API+DATA_FILE,{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"}});
         if(g.ok){ sha=(await g.json()).sha; } }catch(e){}
-      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks(), library:loadLib(), personal:loadPers()},null,2))};
+      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks(), library:loadLib(), personal:loadPers(), homeref:loadHomeref()},null,2))};
       if(sha) body.sha=sha;
       var p=await fetch(API+DATA_FILE,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
       syncState=p.ok?"saved":"error"; renderSync();
@@ -331,7 +335,7 @@
     library:{em:"📚",t:"Library",d:"Watch, read and listen, your own little library.",list:["Quick-add the moment you spot something","Pick a few from the list when you fancy watching, reading or listening","Feeds your reflection and chore options"]},
     jobs:{em:"🧺",t:"Weekend jobs",d:"The catch-all so nothing is lost.",list:["Ironing that didn't get done Wednesday","Bigger, less-frequent jobs for a Friday or the weekend"]}
   };
-  var TASK_TABS=["home"];
+  var TASK_TABS=[];
   function taskCard(key){
     var t=loadTasks(); var list=t[key]||[];
     var h='<h1 class="section">Capture anything for this list</h1><div class="card">';
@@ -480,7 +484,74 @@
     h+='</div><div class="sync" id="syncline"></div></div>';
     document.getElementById("app").innerHTML=h; renderSync();
   }
-  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else if(state.tab==="personal") renderPersonal(); else if(state.tab==="planner") renderPlanner(); else renderPlaceholder(state.tab); }
+  var HOME_LIVE=[
+    {id:"bin_up",t:"Empty the upstairs bin"},
+    {id:"bin_office",t:"Order a new office bin"},
+    {id:"washline",t:"Order a washing line"},
+    {id:"somerset",t:"Unpack & sort the Somerset case"},
+    {id:"restock",t:"Breakfast restock: porridge + bread for the freezer"}
+  ];
+  var HOME_BANK=[
+    {id:"side_drawers",t:"Sort the bedroom side-table drawers"},
+    {id:"kitchen_cup",t:"Sort kitchen cupboards (bin out-of-date, refill jars)"},
+    {id:"clothes_sort",t:"Clothes sorting session (end room)"},
+    {id:"office_cup",t:"Sort the office cupboard"},
+    {id:"office_drawers",t:"Sort the office drawers"},
+    {id:"towels",t:"Go through towels, wash the stained ones"},
+    {id:"airing",t:"Sort the airing cupboard"},
+    {id:"toiletries",t:"Sort all toiletries, decide where they live"},
+    {id:"understairs",t:"Sort the under-stairs cupboard"},
+    {id:"office_curtains",t:"Buy: office curtains or a blind"},
+    {id:"living_curtains",t:"Buy: living-room curtains"}
+  ];
+  var HOME_RECUR=[
+    ["Wash bed sheets","every 4 weeks, next ~14 Jul"],
+    ["Clean inside the fridge","every 8 weeks"],
+    ["Freezer audit + inventory","monthly"],
+    ["Boiler / smoke alarms / gutters / descaling","dates to gather"],
+    ["Car: MOT, tax, insurance, service","Jack handles, Lucy holds dates"]
+  ];
+  var HOME_PUPPY=[
+    {id:"pup_classes",t:"Check Jack heard back on dog-training classes"},
+    {id:"pup_food",t:"Order puppy food"},
+    {id:"pup_kit",t:"Kit list: bed, crate, lead, collar + tag, vet reg, insurance, puppy-proofing"},
+    {id:"pup_spot",t:"Set up the dog's spot + muddy-paw kit by the door"}
+  ];
+  var HOME_SYS=["Laundry: wash Tue, put away + iron Wed","Paperwork system (KonMari), to design","Kitchen inventory: a running low/out list on the fridge","Garden: a June starter planting plan"];
+  function hrow(id,label,isdone){ return '<li><div class="box '+(isdone?"tk":"")+'" data-href="'+id+'"></div><div class="stxt '+(isdone?"done":"")+'"><span class="lab">'+label+'</span></div></li>'; }
+  function renderHome(){
+    var ref=loadHomeref(); var done=ref.done||{};
+    var tasks=(loadTasks().home)||[];
+    var h='<header class="top"><p class="hi">Home</p><div class="date">Your house, in one place</div></header><div class="wrap">';
+    h+='<h1 class="section">Your house to-do</h1><div class="card">';
+    h+='<div style="display:flex;gap:8px"><input id="newtask" placeholder="Add a house to-do…" style="flex:1;border:1px solid var(--line);border-radius:12px;padding:11px;font-family:inherit;font-size:14px;background:var(--cream)"/><button id="addtask" style="flex:none;border:none;border-radius:12px;background:var(--terra);color:#fff;font-weight:700;padding:0 16px">Add</button></div>';
+    h+='<ul class="steps" style="margin-top:8px">';
+    HOME_LIVE.forEach(function(it){ h+=hrow("L|"+it.id,it.t,done["L|"+it.id]); });
+    tasks.forEach(function(it){ h+='<li><div class="box '+(it.done?"tk":"")+'" data-htask="'+it.id+'"></div><div class="stxt '+(it.done?"done":"")+'"><span class="lab">'+it.text+'</span></div></li>'; });
+    h+='</ul></div>';
+    h+='<h1 class="section">Jobs bank, pick from these</h1><div class="card"><ul class="steps">';
+    HOME_BANK.forEach(function(it){ h+=hrow("B|"+it.id,it.t,done["B|"+it.id]); });
+    h+='</ul></div>';
+    h+='<h1 class="section">Recurring & maintenance</h1><div class="card"><ul class="steps">';
+    HOME_RECUR.forEach(function(r){ h+='<li><div class="stxt"><span class="lab">'+r[0]+' <span class="tag day">'+r[1]+'</span></span></div></li>'; });
+    h+='</ul></div>';
+    h+='<h1 class="section">Puppy prep (arrives 9 July)</h1><div class="card"><ul class="steps">';
+    HOME_PUPPY.forEach(function(it){ h+=hrow("P|"+it.id,it.t,done["P|"+it.id]); });
+    h+='</ul></div>';
+    h+='<h1 class="section">Systems & garden</h1><div class="card"><ul class="steps">';
+    HOME_SYS.forEach(function(x){ h+='<li><div class="stxt"><span class="lab">'+x+'</span></div></li>'; });
+    h+='</ul></div>';
+    h+='<div class="sync" id="syncline"></div></div>';
+    document.getElementById("app").innerHTML=h; renderSync(); bindHome();
+  }
+  function bindHome(){
+    document.querySelectorAll("[data-href]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-href"); var r=loadHomeref(); r.done=r.done||{}; r.done[id]=!r.done[id]; saveHomeref(r); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-htask]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-htask"); var t=loadTasks(); (t.home||[]).forEach(function(it){ if(it.id===id) it.done=!it.done; }); saveTasks(t); cloudPush(); renderHome(); }; });
+    var add=document.getElementById("addtask"), inp=document.getElementById("newtask");
+    function doAdd(){ var v=(inp.value||"").trim(); if(!v) return; var t=loadTasks(); t.home=t.home||[]; t.home.push({id:Date.now().toString(36),text:v,done:false,ts:Date.now()}); saveTasks(t); cloudPush(); renderHome(); }
+    if(add) add.onclick=doAdd; if(inp) inp.onkeydown=function(e){ if(e.key==="Enter") doAdd(); };
+  }
+  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else if(state.tab==="personal") renderPersonal(); else if(state.tab==="planner") renderPlanner(); else if(state.tab==="home") renderHome(); else renderPlaceholder(state.tab); }
 
   cloudPull().then(route).catch(route);
   route();
