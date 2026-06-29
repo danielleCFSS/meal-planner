@@ -160,7 +160,7 @@
 
   function daySpecific(){
     var wd=weekdayNum(); var out=[];
-    if(wd===1) out.push({id:"mon_shop",label:"Meal planner + food shop",day:true,min:true});
+    if(wd===1){ out.push({id:"mon_shop",label:"Meal planner + food shop",day:true,min:true}); out.push({id:"mon_unpack",label:"Unpack the food shopping",day:true,min:true}); }
     if(wd===2) out.push({id:"tue_wash",label:"Washing on: basket down, load, turn on",day:true,min:true});
     if(wd===3){ out.push({id:"wed_iron",label:"Put away + ironing",day:true,min:true});
       if(isCleanerWeek()) out.push({id:"wed_clean",label:"Quick pre-tidy for the cleaner",day:true,min:true}); }
@@ -504,21 +504,43 @@
     {id:"office_curtains",t:"Buy: office curtains or a blind"},
     {id:"living_curtains",t:"Buy: living-room curtains"}
   ];
-  var HOME_RECUR=[
-    ["Wash bed sheets","every 4 weeks, next ~14 Jul"],
-    ["Clean inside the fridge","every 8 weeks"],
-    ["Freezer audit + inventory","monthly"],
-    ["Boiler / smoke alarms / gutters / descaling","dates to gather"],
-    ["Car: MOT, tax, insurance, service","Jack handles, Lucy holds dates"]
+  var MAINT=[
+    {g:"Safety",items:[
+      {id:"alarms_test",n:"Test smoke & CO alarms",cad:"monthly",days:30,w:"Press and hold the test button on each alarm until it beeps. If one doesn't sound, change the battery. Your CO alarm should sit near the boiler \u2014 if you haven't got one, it's worth getting one (about \u00a315-20)."},
+      {id:"alarm_batt",n:"Smoke/CO alarm batteries",cad:"yearly",days:365,w:"Change the batteries once a year (easy to remember when the clocks go back). Sealed 10-year alarms don't need this. Replace the whole alarm if it's over 10 years old, the date is on the back."},
+      {id:"boiler",n:"Boiler service",cad:"yearly",days:365,w:"Book a Gas Safe registered engineer once a year (about \u00a370-120, under an hour). They check for leaks, the flue and pressure, clean it and give a safety report. Keeps it safe and the warranty valid."}
+    ]},
+    {g:"Appliance care",items:[
+      {id:"wm_clean",n:"Washing machine clean",cad:"monthly",days:30,w:"Run the Eco Drum Clean cycle (no normal detergent). Wipe the rubber door seal and check under it, and rinse the detergent drawer under the tap. Leave the door ajar between washes so it airs. (Your Samsung WW90T986DSX, bought Aug 2024.)"},
+      {id:"wm_filter",n:"Washing machine pump filter",cad:"every 2 months",days:60,w:"Open the little flap at the bottom front, drain into a tray, and clear the debris filter of fluff and coins. Samsung suggest 5 to 6 times a year."},
+      {id:"dryer_heat",n:"Tumble dryer heat exchanger",cad:"monthly",days:30,w:"Clean the heat exchanger filter at the bottom once a month (rinse and dry fully). And every load: empty the water tank and clean the lint filter, or it dries slowly and can smell. (Your Samsung DV90T8240SX, bought Aug 2024.)"},
+      {id:"ovens",n:"Clean the two ovens (Oven Pride)",cad:"every 3 months",days:90,w:"Give both ovens a deep clean with Oven Pride, bag the racks overnight and wipe the inside. Every 3 months, a bit more often if they get heavy use."},
+      {id:"microwave",n:"Deep clean the microwave",cad:"every 6 months",days:182,w:"Steam a bowl of water with lemon for a few minutes, then wipe out the softened grime. Every 6 months is plenty as you hardly use it."},
+      {id:"dishwasher",n:"Clean & descale the dishwasher",cad:"monthly",days:30,w:"Clean the filter at the bottom, wipe the seals, and run a hot empty cycle with a dishwasher cleaner or white vinegar."}
+    ]},
+    {g:"Cleaning rhythm",items:[
+      {id:"sheets",n:"Wash bed sheets",cad:"every 4 weeks",days:28,w:"Strip and wash all the bed linen, then remake the bed."},
+      {id:"fridge_clean",n:"Clean inside the fridge",cad:"every 8 weeks",days:56,w:"Empty the shelves, wipe down with warm soapy water, and bin anything out of date."},
+      {id:"freezer_audit",n:"Freezer audit + inventory",cad:"monthly",days:30,w:"Check what's in the freezer, note what to use up, and update the inventory."},
+      {id:"carpets",n:"Deep clean the carpets",cad:"every 6 months",days:182,w:"Give the main carpets a deep clean with the Vax, and spot-clean spills as they happen."},
+      {id:"under_bed",n:"Clear + hoover under the beds",cad:"every 6 months",days:182,w:"Pull everything out from under the beds, hoover the dust and have a clear-out."},
+      {id:"sofas",n:"Sofas: cushions off + hoover",cad:"monthly",days:30,w:"Take the cushions off and hoover the crumbs and dust from the crevices. A deeper fabric freshen-up every 6 to 12 months."}
+    ]},
+    {g:"Seasonal",items:[
+      {id:"gutters",n:"Clear the gutters",cad:"yearly (autumn)",days:365,w:"Clear leaves and debris from the gutters and downpipes so rain drains away. Best in autumn, one for Jack or a handyman with a ladder."},
+      {id:"radiators",n:"Bleed the radiators",cad:"yearly (before winter)",days:365,w:"When the heating is on, if a radiator is cold at the top, let the trapped air out with a radiator key. Do it before winter."}
+    ]}
   ];
   var HOME_PUPPY=[
     {id:"pup_classes",t:"Check Jack heard back on dog-training classes"},
     {id:"pup_food",t:"Order puppy food"},
-    {id:"pup_kit",t:"Kit list: bed, crate, lead, collar + tag, vet reg, insurance, puppy-proofing"},
+    {id:"pup_kit",t:"Puppy kit list",subs:["Bed","Crate","Lead","Collar + tag","Vet registration","Insurance","Puppy-proofing"]},
     {id:"pup_spot",t:"Set up the dog's spot + muddy-paw kit by the door"}
   ];
   var HOME_SYS=["Laundry: wash Tue, put away + iron Wed","Paperwork system (KonMari), to design","Kitchen inventory: a running low/out list on the fridge","Garden: a June starter planting plan"];
   function hrow(id,label,isdone){ return '<li><div class="box '+(isdone?"tk":"")+'" data-href="'+id+'"></div><div class="stxt '+(isdone?"done":"")+'"><span class="lab">'+label+'</span></div></li>'; }
+  function fmtD2(s){ try{ return new Date(s).toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }catch(e){ return s; } }
+  function dueText2(s,days){ var nx=new Date(s); nx.setDate(nx.getDate()+days); var d=Math.ceil((nx-new Date())/86400000); if(d>0) return "next due in "+d+" day"+(d===1?"":"s"); if(d===0) return "due today"; return "overdue by "+(-d)+" day"+(d===-1?"":"s"); }
   function renderHome(){
     var ref=loadHomeref(); var done=ref.done||{};
     var tasks=(loadTasks().home)||[];
@@ -526,17 +548,31 @@
     h+='<h1 class="section">Your house to-do</h1><div class="card">';
     h+='<div style="display:flex;gap:8px"><input id="newtask" placeholder="Add a house to-do…" style="flex:1;border:1px solid var(--line);border-radius:12px;padding:11px;font-family:inherit;font-size:14px;background:var(--cream)"/><button id="addtask" style="flex:none;border:none;border-radius:12px;background:var(--terra);color:#fff;font-weight:700;padding:0 16px">Add</button></div>';
     h+='<ul class="steps" style="margin-top:8px">';
-    HOME_LIVE.forEach(function(it){ h+=hrow("L|"+it.id,it.t,done["L|"+it.id]); });
-    tasks.forEach(function(it){ h+='<li><div class="box '+(it.done?"tk":"")+'" data-htask="'+it.id+'"></div><div class="stxt '+(it.done?"done":"")+'"><span class="lab">'+it.text+'</span></div></li>'; });
+    HOME_LIVE.forEach(function(it){ if(!done["L|"+it.id]) h+=hrow("L|"+it.id,it.t,false); });
+    tasks.forEach(function(it){ if(!it.done) h+='<li><div class="box" data-htask="'+it.id+'"></div><div class="stxt"><span class="lab">'+it.text+'</span></div></li>'; });
     h+='</ul></div>';
     h+='<h1 class="section">Jobs bank, pick from these</h1><div class="card"><ul class="steps">';
-    HOME_BANK.forEach(function(it){ h+=hrow("B|"+it.id,it.t,done["B|"+it.id]); });
+    HOME_BANK.forEach(function(it){ if(!done["B|"+it.id]) h+=hrow("B|"+it.id,it.t,false); });
     h+='</ul></div>';
-    h+='<h1 class="section">Recurring & maintenance</h1><div class="card"><ul class="steps">';
-    HOME_RECUR.forEach(function(r){ h+='<li><div class="stxt"><span class="lab">'+r[0]+' <span class="tag day">'+r[1]+'</span></span></div></li>'; });
-    h+='</ul></div>';
+    h+='<h1 class="section">Recurring & maintenance</h1>';
+    MAINT.forEach(function(grp){
+      h+='<div class="card"><div style="font-size:13px;font-weight:700;color:var(--green2);margin-bottom:2px">'+grp.g+'</div><ul class="steps">';
+      grp.items.forEach(function(m){
+        var ld=(ref.mdate||{})[m.id]||"";
+        var status=ld?('Last done '+fmtD2(ld)+' \u00b7 '+dueText2(ld,m.days)):'Not logged yet';
+        h+='<li><div class="stxt"><span class="lab">'+m.n+' <span class="tag day">'+m.cad+'</span></span><div style="font-size:12.5px;color:var(--taupe);margin-top:3px">'+status+'</div><div id="mw_'+m.id+'" style="display:none;font-size:13px;color:var(--ink);margin-top:6px;background:var(--cream);border-radius:10px;padding:8px 10px">'+m.w+'</div><div class="choices" style="margin-top:7px"><button data-mexp="'+m.id+'">What to do</button><button data-mdone="'+m.id+'">Done today</button><label class="pill" style="display:inline-flex;align-items:center;gap:4px">Last done <input type="date" data-mdate="'+m.id+'" value="'+ld+'" style="border:none;background:none;font-family:inherit;font-size:12px;color:var(--ink)"/></label></div></div></li>';
+      });
+      h+='</ul></div>';
+    });
     h+='<h1 class="section">Puppy prep (arrives 9 July)</h1><div class="card"><ul class="steps">';
-    HOME_PUPPY.forEach(function(it){ h+=hrow("P|"+it.id,it.t,done["P|"+it.id]); });
+    HOME_PUPPY.forEach(function(it){
+      if(it.subs){
+        var sb=(ref.subs&&ref.subs[it.id])||{};
+        h+='<li><div class="stxt"><span class="lab">'+it.t+'</span><div class="subticks">';
+        it.subs.forEach(function(s){ h+='<button class="pill '+(sb[s]?"on":"")+'" data-psub="'+it.id+'|'+s+'">'+s+'</button>'; });
+        h+='</div></div></li>';
+      } else if(!done["P|"+it.id]) { h+=hrow("P|"+it.id,it.t,false); }
+    });
     h+='</ul></div>';
     h+='<h1 class="section">Systems & garden</h1><div class="card"><ul class="steps">';
     HOME_SYS.forEach(function(x){ h+='<li><div class="stxt"><span class="lab">'+x+'</span></div></li>'; });
@@ -545,8 +581,12 @@
     document.getElementById("app").innerHTML=h; renderSync(); bindHome();
   }
   function bindHome(){
-    document.querySelectorAll("[data-href]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-href"); var r=loadHomeref(); r.done=r.done||{}; r.done[id]=!r.done[id]; saveHomeref(r); cloudPush(); renderHome(); }; });
-    document.querySelectorAll("[data-htask]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-htask"); var t=loadTasks(); (t.home||[]).forEach(function(it){ if(it.id===id) it.done=!it.done; }); saveTasks(t); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-href]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-href"); var r=loadHomeref(); r.done=r.done||{}; r.done[id]=todayKey(); saveHomeref(r); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-htask]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-htask"); var t=loadTasks(); (t.home||[]).forEach(function(it){ if(it.id===id) it.done=true; }); saveTasks(t); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-mdone]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-mdone"); var r=loadHomeref(); r.mdate=r.mdate||{}; r.mdate[id]=todayKey(); saveHomeref(r); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-mdate]").forEach(function(b){ b.onchange=function(){ var id=b.getAttribute("data-mdate"); var r=loadHomeref(); r.mdate=r.mdate||{}; r.mdate[id]=b.value; saveHomeref(r); cloudPush(); renderHome(); }; });
+    document.querySelectorAll("[data-mexp]").forEach(function(b){ b.onclick=function(){ var el=document.getElementById("mw_"+b.getAttribute("data-mexp")); if(el) el.style.display=(el.style.display==="none"?"block":"none"); }; });
+    document.querySelectorAll("[data-psub]").forEach(function(b){ b.onclick=function(){ var p=b.getAttribute("data-psub").split("|"); var r=loadHomeref(); r.subs=r.subs||{}; r.subs[p[0]]=r.subs[p[0]]||{}; r.subs[p[0]][p[1]]=!r.subs[p[0]][p[1]]; saveHomeref(r); cloudPush(); renderHome(); }; });
     var add=document.getElementById("addtask"), inp=document.getElementById("newtask");
     function doAdd(){ var v=(inp.value||"").trim(); if(!v) return; var t=loadTasks(); t.home=t.home||[]; t.home.push({id:Date.now().toString(36),text:v,done:false,ts:Date.now()}); saveTasks(t); cloudPush(); renderHome(); }
     if(add) add.onclick=doAdd; if(inp) inp.onkeydown=function(e){ if(e.key==="Enter") doAdd(); };
