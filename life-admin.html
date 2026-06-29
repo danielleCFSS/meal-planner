@@ -275,7 +275,7 @@
         if(s.subticks){ h+='<div class="subticks">'; s.subticks.forEach(function(st){ var on=e.subs[s.id]&&e.subs[s.id][st]; h+='<span class="pill '+(on?"on":"")+'" data-sub="'+s.id+'|'+st+'">'+st+'</span>'; }); h+='</div>'; }
         if(s.toggle){ var cur=e.toggles[s.toggle]!=null?e.toggles[s.toggle]:lastToggle(s.toggle); h+='<div class="choices">'; TOGGLES[s.toggle].opts.forEach(function(o){ h+='<button data-tog="'+s.toggle+'|'+o+'" class="'+(cur===o?"sel":"")+'">'+o+'</button>'; }); h+='</div>'; }
         if(s.picker){ var cp=e.pickers[s.picker]||lastPicker(s.picker); h+='<div class="choices">'; PICKERS[s.picker].opts.forEach(function(o){ h+='<button data-pick="'+s.picker+'|'+o+'" class="'+(cp===o?"sel":"")+'">'+o+'</button>'; }); h+='</div>';
-          if(s.picker==="movement" && cp==="Walk outside"){ var wl=e.pickers.walkLen||lastPicker("walkLen"); h+='<div class="choices" style="margin-top:6px">'; WALK_LENGTHS.forEach(function(o){ h+='<button data-pick="walkLen|'+o+'" class="'+(wl===o?"sel":"")+'">'+o+'</button>'; }); h+='</div>'; }
+          if(s.picker==="movement" && cp==="Walk outside"){ var wl=e.pickers.walkLen||lastPicker("walkLen"); h+='<div class="listen" style="margin-top:7px">\ud83c\udfa7 Pick something to listen to for stimulation</div>'; h+='<div class="choices" style="margin-top:6px">'; WALK_LENGTHS.forEach(function(o){ h+='<button data-pick="walkLen|'+o+'" class="'+(wl===o?"sel":"")+'">'+o+'</button>'; }); h+='</div>'; }
         }
         h+='</div></li>';
       });
