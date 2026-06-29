@@ -93,6 +93,49 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     if (!p.ok) throw new Error("save failed " + p.status);
     return await p.json();
   }
+  async function ghWritePicture(apiUrl, base64, token) {
+    if (!token) throw new Error("no token");
+    let sha;
+    try {
+      const g = await fetch(apiUrl, { headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" } });
+      if (g.ok) {
+        const j = await g.json();
+        sha = j.sha;
+      }
+    } catch (e) {
+    }
+    const body = { message: "Add meal-request photo", content: base64 };
+    if (sha) body.sha = sha;
+    const p = await fetch(apiUrl, { method: "PUT", headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!p.ok) throw new Error("photo save failed " + p.status);
+    return await p.json();
+  }
+  function fileToCompressedBase64(file, maxDim, quality) {
+    maxDim = maxDim || 1e3;
+    quality = quality || 0.7;
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        try {
+          resolve(canvas.toDataURL("image/jpeg", quality).split(",")[1]);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const FULLDAY = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
   const AISLES = ["Produce", "Meat & fish", "Dairy & chilled", "Bakery", "Tins & jars", "Dry & pasta", "Frozen", "Herbs & spices", "Other"];
@@ -182,6 +225,12 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     const [newNext, setNewNext] = useState("");
     const [stockSearch, setStockSearch] = useState("");
     const [breakfast, setBreakfast] = useState("");
+    const [mealRequests, setMealRequests] = useState([]);
+    const [requestMode, setRequestMode] = useState(null);
+    const [reqName, setReqName] = useState("");
+    const [reqLink, setReqLink] = useState("");
+    const [reqNote, setReqNote] = useState("");
+    const [reqFiles, setReqFiles] = useState([]);
     const [drag, setDrag] = useState(null);
     const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
     const [overDay, setOverDay] = useState(null);
@@ -213,8 +262,10 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
       (async () => {
         const s = await ghReadJSON("stock.json", null);
         const n = await ghReadJSON("next-week.json", null);
+        const rq = await ghReadJSON("requests.json", null);
         setStock(s || lsGet("mealplanner:stock", { cupboards: [], freezer: [] }));
         setNextWeek(n && n.items || lsGet("mealplanner:nextweek", []));
+        setMealRequests(rq && rq.items || lsGet("mealplanner:requests", []));
       })();
     }, []);
     useEffect(() => {
@@ -381,6 +432,48 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
         setSync("Saving...");
         ghWriteJSON("next-week.json", { items: arr }, token).then(() => setSync("Saved to all your devices")).catch(() => setSync("Saved on this device (add your token to sync)"));
       } else setSync("Saved on this device. Add your token in the Stock tab to sync.");
+    };
+    const persistRequests = (arr) => {
+      setMealRequests(arr);
+      lsSet("mealplanner:requests", arr);
+      if (token) {
+        setSync("Saving...");
+        ghWriteJSON("requests.json", { items: arr }, token).then(() => setSync("Sent to Lucy")).catch(() => setSync("Saved on this device (add your token to sync)"));
+      } else setSync("Saved on this device. Add your token in the Stock tab to sync.");
+    };
+    const addExistingRequest = (r) => {
+      if (!r) return;
+      if ((mealRequests || []).some((q) => q.type === "existing" && q.recipeId === r.id)) {
+        setRequestMode(null);
+        return;
+      }
+      persistRequests([...mealRequests || [], { id: uid(), type: "existing", recipeId: r.id, name: r.name, from: "Jack", date: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10), status: "pending" }]);
+      setRequestMode(null);
+    };
+    const removeRequest = (id) => persistRequests((mealRequests || []).filter((q) => q.id !== id));
+    const submitNewRequest = async () => {
+      const name = (reqName || "").trim();
+      const link = (reqLink || "").trim();
+      if (!name && !link && reqFiles.length === 0) return;
+      const id = uid();
+      const images = [];
+      if (reqFiles.length && token) {
+        setSync("Uploading photos...");
+        for (let i = 0; i < reqFiles.length; i++) {
+          try {
+            const b642 = await fileToCompressedBase64(reqFiles[i]);
+            await ghWritePicture(API_BASE + "requests/" + id + "-" + (i + 1) + ".jpg", b642, token);
+            images.push("data/requests/" + id + "-" + (i + 1) + ".jpg");
+          } catch (e) {
+          }
+        }
+      }
+      persistRequests([...mealRequests || [], { id, type: "new", name: name || "New recipe", link, note: (reqNote || "").trim(), images, from: "Jack", date: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10), status: "pending" }]);
+      setReqName("");
+      setReqLink("");
+      setReqNote("");
+      setReqFiles([]);
+      setRequestMode(null);
     };
     const saveTokenNow = () => {
       const t = tokenDraft.trim();
@@ -597,7 +690,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     if (!loaded) {
       return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("style", null, css), /* @__PURE__ */ React.createElement("div", { className: "mp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "mp-head" }, /* @__PURE__ */ React.createElement("div", { className: "mp-eyebrow" }, "This week"), /* @__PURE__ */ React.createElement("div", { className: "mp-title" }, "Laying the table..."))));
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("style", null, css), /* @__PURE__ */ React.createElement("div", { className: "mp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "mp-head" }, /* @__PURE__ */ React.createElement("div", { className: "mp-eyebrow" }, "Week of ", dayLabel(monday, 0)), /* @__PURE__ */ React.createElement("div", { className: "mp-title" }, "This week's menu"), /* @__PURE__ */ React.createElement("div", { className: "mp-sub" }, "Tap a meal for the recipe. Swap it, drag it to another day, or set a night for guests.")), /* @__PURE__ */ React.createElement("div", { className: "mp-tabs" }, /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "menu" ? 1 : 0, onClick: () => setTab("menu") }, "Menu"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "glance" ? 1 : 0, onClick: () => setTab("glance") }, "At a glance"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "shop" ? 1 : 0, onClick: () => setTab("shop") }, "Buy this week"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "stock" ? 1 : 0, onClick: () => setTab("stock") }, "Stock"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "next" ? 1 : 0, onClick: () => setTab("next") }, "Add for next week"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "recipes" ? 1 : 0, onClick: () => setTab("recipes") }, "Recipes")), tab === "menu" && /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, DAYS.map((day, i) => /* @__PURE__ */ React.createElement("div", { className: "mp-day", key: day, "data-day": day, "data-over": drag && drag.day !== day && overDay === day ? 1 : 0 }, /* @__PURE__ */ React.createElement("div", { className: "mp-day-top" }, /* @__PURE__ */ React.createElement("div", { className: "mp-day-left" }, /* @__PURE__ */ React.createElement("span", { className: "mp-day-name" }, day), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("style", null, css), /* @__PURE__ */ React.createElement("div", { className: "mp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "mp-head" }, /* @__PURE__ */ React.createElement("div", { className: "mp-eyebrow" }, "Week of ", dayLabel(monday, 0)), /* @__PURE__ */ React.createElement("div", { className: "mp-title" }, "This week's menu"), /* @__PURE__ */ React.createElement("div", { className: "mp-sub" }, "Tap a meal for the recipe. Swap it, drag it to another day, or set a night for guests.")), /* @__PURE__ */ React.createElement("div", { className: "mp-tabs" }, /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "menu" ? 1 : 0, onClick: () => setTab("menu") }, "Menu"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "glance" ? 1 : 0, onClick: () => setTab("glance") }, "At a glance"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "shop" ? 1 : 0, onClick: () => setTab("shop") }, "Buy this week"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "stock" ? 1 : 0, onClick: () => setTab("stock") }, "Stock"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "next" ? 1 : 0, onClick: () => setTab("next") }, "Looking ahead"), /* @__PURE__ */ React.createElement("button", { className: "mp-tab", "data-on": tab === "recipes" ? 1 : 0, onClick: () => setTab("recipes") }, "Recipes")), tab === "menu" && /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, DAYS.map((day, i) => /* @__PURE__ */ React.createElement("div", { className: "mp-day", key: day, "data-day": day, "data-over": drag && drag.day !== day && overDay === day ? 1 : 0 }, /* @__PURE__ */ React.createElement("div", { className: "mp-day-top" }, /* @__PURE__ */ React.createElement("div", { className: "mp-day-left" }, /* @__PURE__ */ React.createElement("span", { className: "mp-day-name" }, day), /* @__PURE__ */ React.createElement(
       "button",
       {
         className: "mp-host",
@@ -756,7 +849,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
         setTokenState("");
         setSync("Token removed from this device.");
       } }, "Remove from this device")) : /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Paste your GitHub token once on this device to sync your lists and let Lucy read them. Kept only on this device."), /* @__PURE__ */ React.createElement("div", { className: "mp-row" }, /* @__PURE__ */ React.createElement("input", { className: "mp-input", placeholder: "github_pat_...", value: tokenDraft, onChange: (e) => setTokenDraft(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: saveTokenNow }, "Save"))), sync && /* @__PURE__ */ React.createElement("div", { className: "mp-sync", style: { marginTop: 6 } }, sync)));
-    })(), tab === "next" && /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, 'Jot anything you run out of during the week. When the new week is planned it moves into your "Buy this week" list automatically and this list clears itself.'), (nextWeek || []).length === 0 && /* @__PURE__ */ React.createElement("div", { className: "mp-empty" }, "Nothing on the list yet."), (nextWeek || []).map((it, idx) => /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: idx }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, it), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeNext(idx) }, /* @__PURE__ */ React.createElement(X, { size: 15 })))), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 12 } }, /* @__PURE__ */ React.createElement(
+    })(), tab === "next" && /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("div", { className: "mp-aisle", style: { marginTop: 0 } }, "Shopping list"), /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, 'Jot anything you run out of during the week. When the new week is planned it moves into your "Buy this week" list automatically and this list clears itself.'), (nextWeek || []).length === 0 && /* @__PURE__ */ React.createElement("div", { className: "mp-empty" }, "Nothing on the list yet."), (nextWeek || []).map((it, idx) => /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: idx }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, it), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeNext(idx) }, /* @__PURE__ */ React.createElement(X, { size: 15 })))), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 12 } }, /* @__PURE__ */ React.createElement(
       "input",
       {
         className: "mp-input",
@@ -773,7 +866,13 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     ), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: () => {
       addNext(newNext);
       setNewNext("");
-    } }, "Add")), sync && /* @__PURE__ */ React.createElement("div", { className: "mp-sync" }, sync)), tab === "recipes" && /* @__PURE__ */ React.createElement(RecipesTab, { recipes, setRecipes, setPlan }), /* @__PURE__ */ React.createElement("div", { className: "mp-foot" }, /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: resetAll, style: { color: "var(--muted)", fontSize: 12 } }, /* @__PURE__ */ React.createElement(RotateCcw, { size: 13 }), " Reset to a fresh start"))), drag && /* @__PURE__ */ React.createElement("div", { className: "mp-float", style: { left: dragPos.x, top: dragPos.y } }, drag.name), printMode && /* @__PURE__ */ React.createElement("div", { className: "mp-print" }, /* @__PURE__ */ React.createElement("div", { className: "mp-print-page" }, /* @__PURE__ */ React.createElement("h1", { className: "pp-h1" }, "This week's dinners"), /* @__PURE__ */ React.createElement("div", { className: "pp-sub" }, "Week of ", dayLabel(monday, 0)), overviewRows), printMode === "full" && DAYS.map((day, i) => {
+    } }, "Add")), /* @__PURE__ */ React.createElement("div", { className: "mp-aisle", style: { marginTop: 28 } }, "Meal requests"), /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0 } }, "Jack's space. Tick a meal we already make, or send something new you have spotted on Instagram and Lucy will sort the recipe and find it a day that suits."), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 4 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": requestMode === "existing" ? 0 : 1, onClick: () => setRequestMode(requestMode === "existing" ? null : "existing") }, "Select an existing meal"), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": requestMode === "new" ? 0 : 1, onClick: () => setRequestMode(requestMode === "new" ? null : "new") }, "Request a new recipe")), requestMode === "existing" && /* @__PURE__ */ React.createElement("div", { className: "mp-picker" }, /* @__PURE__ */ React.createElement("div", { className: "mp-picker-label" }, "Tick one we already make"), recipes.map((r) => /* @__PURE__ */ React.createElement("button", { className: "mp-pick", key: r.id, onClick: () => addExistingRequest(r) }, /* @__PURE__ */ React.createElement("div", { className: "mp-pick-name" }, r.name), /* @__PURE__ */ React.createElement("div", { className: "mp-pick-meta" }, "serves ", r.servings, " ", "\xB7", " ", metaLine(r))))), requestMode === "new" && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10 } }, /* @__PURE__ */ React.createElement("input", { className: "mp-input", style: { marginBottom: 8 }, placeholder: "What is it? eg crispy chilli beef", value: reqName, onChange: (e) => setReqName(e.target.value) }), /* @__PURE__ */ React.createElement("input", { className: "mp-input", style: { marginBottom: 8 }, placeholder: "Instagram link (optional)", value: reqLink, onChange: (e) => setReqLink(e.target.value) }), /* @__PURE__ */ React.createElement("textarea", { className: "mp-area", rows: 2, style: { marginBottom: 8 }, placeholder: "Anything to add for Mum? (optional)", value: reqNote, onChange: (e) => setReqNote(e.target.value) }), /* @__PURE__ */ React.createElement("label", { className: "mp-add", style: { display: "inline-flex" } }, /* @__PURE__ */ React.createElement(Plus, { size: 15 }), " Add screenshots", /* @__PURE__ */ React.createElement("input", { type: "file", accept: "image/*", multiple: true, style: { display: "none" }, onChange: (e) => setReqFiles(Array.from(e.target.files || [])) })), reqFiles.length > 0 && /* @__PURE__ */ React.createElement("span", { className: "mp-note", style: { marginLeft: 8 } }, reqFiles.length, " photo", reqFiles.length === 1 ? "" : "s", " ready"), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 10 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: submitNewRequest }, "Send to Lucy"), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": "1", onClick: () => {
+      setReqName("");
+      setReqLink("");
+      setReqNote("");
+      setReqFiles([]);
+      setRequestMode(null);
+    } }, "Cancel")), /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 8 } }, "If the recipe is long, add a few screenshots of the steps. A reel that only talks through it may need the caption screenshotted too.")), (mealRequests || []).length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "mp-aisle", style: { fontSize: 14, marginTop: 22 } }, "Sent to Lucy"), (mealRequests || []).map((q) => /* @__PURE__ */ React.createElement("div", { className: "mp-item", key: q.id }, /* @__PURE__ */ React.createElement("span", { className: "mp-item-name" }, q.name, q.type === "new" ? " (new)" : "", q.statusNote ? "  " + q.statusNote : ""), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => removeRequest(q.id) }, /* @__PURE__ */ React.createElement(X, { size: 15 }))))), sync && /* @__PURE__ */ React.createElement("div", { className: "mp-sync" }, sync)), tab === "recipes" && /* @__PURE__ */ React.createElement(RecipesTab, { recipes, setRecipes, setPlan }), /* @__PURE__ */ React.createElement("div", { className: "mp-foot" }, /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: resetAll, style: { color: "var(--muted)", fontSize: 12 } }, /* @__PURE__ */ React.createElement(RotateCcw, { size: 13 }), " Reset to a fresh start"))), drag && /* @__PURE__ */ React.createElement("div", { className: "mp-float", style: { left: dragPos.x, top: dragPos.y } }, drag.name), printMode && /* @__PURE__ */ React.createElement("div", { className: "mp-print" }, /* @__PURE__ */ React.createElement("div", { className: "mp-print-page" }, /* @__PURE__ */ React.createElement("h1", { className: "pp-h1" }, "This week's dinners"), /* @__PURE__ */ React.createElement("div", { className: "pp-sub" }, "Week of ", dayLabel(monday, 0)), overviewRows), printMode === "full" && DAYS.map((day, i) => {
       if (!plan[day].length) return null;
       return /* @__PURE__ */ React.createElement("div", { className: "mp-print-page", key: day }, /* @__PURE__ */ React.createElement("div", { className: "pp-rday" }, FULLDAY[day]), /* @__PURE__ */ React.createElement("div", { className: "pp-sub" }, dayLabel(monday, i)), plan[day].map((entry) => {
         const r = recipeById(entry.recipeId);
@@ -934,7 +1033,6 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     throw err;
   }
 })();
-
 </script>
 <script>
 setTimeout(function(){
