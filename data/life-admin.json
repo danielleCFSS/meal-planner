@@ -30,7 +30,8 @@
         "stanley": "Water"
       },
       "pickers": {
-        "reflection": "Audiobook"
+        "reflection": "Audiobook",
+        "movement": "Walk outside"
       },
       "notes": {
         "_open_c1": true
@@ -38,7 +39,8 @@
       "doneChunks": [
         "c1",
         "c2",
-        "c3"
+        "c3",
+        "c4"
       ],
       "finishedAt": null
     }
