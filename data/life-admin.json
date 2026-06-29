@@ -1,3 +1,27 @@
 {
-  "log": {}
+  "log": {
+    "2026-06-29": {
+      "date": "2026-06-29",
+      "mode": "full",
+      "energy": "Okay",
+      "steps": {
+        "phone": true,
+        "tea": true,
+        "reflect": true,
+        "earbuds": true
+      },
+      "subs": {},
+      "toggles": {},
+      "pickers": {
+        "reflection": "Audiobook"
+      },
+      "notes": {
+        "_open_c1": true
+      },
+      "doneChunks": [
+        "c1"
+      ],
+      "finishedAt": null
+    }
+  }
 }
