@@ -15,11 +15,19 @@
         "teeth": true,
         "skin": true,
         "makeup": true,
-        "clothes": true
+        "clothes": true,
+        "dishwasher": true,
+        "clear": true,
+        "eat": true,
+        "tarot": false,
+        "dressed": true,
+        "mon_shop": true
       },
       "subs": {},
       "toggles": {
-        "makeup": "No"
+        "makeup": "No",
+        "eat": "Inside",
+        "stanley": "Water"
       },
       "pickers": {
         "reflection": "Audiobook"
@@ -29,7 +37,8 @@
       },
       "doneChunks": [
         "c1",
-        "c2"
+        "c2",
+        "c3"
       ],
       "finishedAt": null
     }
