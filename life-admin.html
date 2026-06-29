@@ -110,12 +110,16 @@
   var TLS="lifeadmin:tasks";
   function loadTasks(){ try{ return JSON.parse(localStorage.getItem(TLS))||{}; }catch(e){ return {}; } }
   function saveTasks(t){ try{ localStorage.setItem(TLS, JSON.stringify(t)); }catch(e){} }
+  var LIB="lifeadmin:library";
+  function loadLib(){ try{ var v=JSON.parse(localStorage.getItem(LIB)); return (v&&v.watch)?v:{watch:[],read:[],listen:[]}; }catch(e){ return {watch:[],read:[],listen:[]}; } }
+  function saveLib(l){ try{ localStorage.setItem(LIB, JSON.stringify(l)); }catch(e){} }
   var syncState="idle";
   async function cloudPull(){
     try{ var r=await fetch(RAW+DATA_FILE+"?t="+Date.now(),{cache:"no-store"});
       if(r.ok){ var j=await r.json(); if(j){
         if(j.log){ var local=loadLog(); for(var d in j.log){ if(!local[d]) local[d]=j.log[d]; } saveLog(local); }
         if(j.tasks){ var lt=loadTasks(); for(var k in j.tasks){ if(!lt[k]||!lt[k].length) lt[k]=j.tasks[k]; } saveTasks(lt); }
+        if(j.library){ var ll=loadLib(); for(var k2 in j.library){ if(!ll[k2]||!ll[k2].length) ll[k2]=j.library[k2]; } saveLib(ll); }
       } } }catch(e){}
   }
   async function cloudPush(){
@@ -125,7 +129,7 @@
       var sha=null;
       try{ var g=await fetch(API+DATA_FILE,{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"}});
         if(g.ok){ sha=(await g.json()).sha; } }catch(e){}
-      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks()},null,2))};
+      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks(), library:loadLib()},null,2))};
       if(sha) body.sha=sha;
       var p=await fetch(API+DATA_FILE,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
       syncState=p.ok?"saved":"error"; renderSync();
@@ -319,11 +323,11 @@
   var PLACEHOLDERS={
     planner:{em:"🗓️",t:"Planner",d:"Where your week and the month ahead will live.",list:["This week at a glance: where home, personal and admin sit across the 7 days","Coming up: a 4-week look ahead so botox re-books, occasions and seasonal jobs never creep up"]},
     personal:{em:"🌸",t:"Personal",d:"Your health, wellbeing, self and beauty in one place.",list:["Supplements, movement, hydration, cycle (private, behind your token)","Hobbies, reflection, goals and rewards","Beauty upkeep: botox, tan, nails, hair, with the book-and-log reminders"]},
-    home:{em:"🏠",t:"Home",d:"The calm-house side, little and often.",list:["Weekly zones and the house jobs bank","Maintenance register so nothing bites you","Puppy prep (arriving 9 July)"]},
+    home:{em:"🏠",t:"Home",d:"House to-dos and the weekend list up top; the house system below.",list:["Your to-do / this-weekend list (add anything below)","The house system: weekly zones, jobs bank, maintenance register","Puppy prep (arriving 9 July)"]},
     library:{em:"📚",t:"Library",d:"Watch, read and listen, your own little library.",list:["Quick-add the moment you spot something","Pick a few from the list when you fancy watching, reading or listening","Feeds your reflection and chore options"]},
     jobs:{em:"🧺",t:"Weekend jobs",d:"The catch-all so nothing is lost.",list:["Ironing that didn't get done Wednesday","Bigger, less-frequent jobs for a Friday or the weekend"]}
   };
-  var TASK_TABS=["personal","home","jobs"];
+  var TASK_TABS=["personal","home"];
   function taskCard(key){
     var t=loadTasks(); var list=t[key]||[];
     var h='<h1 class="section">Capture anything for this list</h1><div class="card">';
@@ -350,12 +354,39 @@
     if(TASK_TABS.indexOf(key)>=0) bindTasks(key);
   }
 
-  var TABS=[["today","Today","☀️"],["planner","Planner","🗓️"],["personal","Personal","🌸"],["home","Home","🏠"],["library","Library","📚"],["jobs","Jobs","🧺"]];
+  var TABS=[["today","Today","☀️"],["planner","Planner","🗓️"],["personal","Personal","🌸"],["home","Home","🏠"],["library","Library","📚"]];
   function renderTabs(){
     document.getElementById("tabbar").innerHTML=TABS.map(function(t){ return '<button data-tab="'+t[0]+'" class="'+(state.tab===t[0]?"on":"")+'"><span class="ic">'+t[2]+'</span>'+t[1]+'</button>'; }).join("");
     document.querySelectorAll("[data-tab]").forEach(function(b){ b.onclick=function(){ state.tab=b.getAttribute("data-tab"); state.chunk=0; route(); }; });
   }
-  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else renderPlaceholder(state.tab); }
+  var LIBCATS=[["watch","Watch","📺"],["read","Read","📖"],["listen","Listen","🎧"]];
+  var libSugg={};
+  function renderLibrary(){
+    var lib=loadLib();
+    var h='<header class="top"><p class="hi">Library</p><div class="date">Watch, read & listen</div></header><div class="wrap">';
+    LIBCATS.forEach(function(c){
+      var key=c[0], items=lib[key]||[];
+      h+='<h1 class="section">'+c[2]+' '+c[1]+'</h1><div class="card">';
+      h+='<div style="display:flex;gap:8px"><input id="add_'+key+'" placeholder="Add to '+c[1].toLowerCase()+'…" style="flex:1;border:1px solid var(--line);border-radius:12px;padding:11px;font-family:inherit;font-size:14px;background:var(--cream)"/><button data-libadd="'+key+'" style="flex:none;border:none;border-radius:12px;background:var(--terra);color:#fff;font-weight:700;padding:0 16px">Add</button></div>';
+      h+='<div style="margin-top:8px"><button data-libsugg="'+key+'" class="pill">Suggest a few</button></div>';
+      if(libSugg[key]&&libSugg[key].length){ h+='<div style="margin-top:8px;font-size:13px;color:var(--green2)"><b>Try:</b> '+libSugg[key].join(" · ")+'</div>'; }
+      if(items.length){ h+='<ul class="steps" style="margin-top:8px">';
+        items.forEach(function(it){ h+='<li><div class="box '+(it.done?"tk":"")+'" data-libdone="'+key+'|'+it.id+'"></div><div class="stxt '+(it.done?"done":"")+'"><span class="lab">'+it.title+'</span>'+(it.done?('<div class="noteline"><button data-libreact="'+key+'|'+it.id+'">'+(it.reaction?('“'+it.reaction+'”'):'+ what did you think?')+'</button></div>'):'')+'</div></li>'; });
+        h+='</ul>'; }
+      else { h+='<p style="color:var(--taupe);font-size:13px;margin:10px 2px 0">Nothing here yet. Add things the moment you spot them.</p>'; }
+      h+='</div>';
+    });
+    h+='<div class="sync" id="syncline"></div></div>';
+    document.getElementById("app").innerHTML=h;
+    renderSync(); bindLibrary();
+  }
+  function bindLibrary(){
+    document.querySelectorAll("[data-libadd]").forEach(function(b){ b.onclick=function(){ var key=b.getAttribute("data-libadd"); var inp=document.getElementById("add_"+key); var v=(inp.value||"").trim(); if(!v) return; var lib=loadLib(); lib[key].push({id:Date.now().toString(36),title:v,done:false,reaction:"",ts:Date.now()}); saveLib(lib); cloudPush(); renderLibrary(); }; });
+    document.querySelectorAll("[data-libdone]").forEach(function(b){ b.onclick=function(){ var p=b.getAttribute("data-libdone").split("|"); var lib=loadLib(); (lib[p[0]]||[]).forEach(function(it){ if(it.id===p[1]) it.done=!it.done; }); saveLib(lib); cloudPush(); renderLibrary(); }; });
+    document.querySelectorAll("[data-libsugg]").forEach(function(b){ b.onclick=function(){ var key=b.getAttribute("data-libsugg"); var lib=loadLib(); var todo=(lib[key]||[]).filter(function(i){return !i.done;}); for(var i=todo.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=todo[i]; todo[i]=todo[j]; todo[j]=t; } libSugg[key]=todo.slice(0,3).map(function(i){return i.title;}); renderLibrary(); }; });
+    document.querySelectorAll("[data-libreact]").forEach(function(b){ b.onclick=function(){ var p=b.getAttribute("data-libreact").split("|"); var lib=loadLib(); var cur=""; (lib[p[0]]||[]).forEach(function(it){ if(it.id===p[1]) cur=it.reaction||""; }); var r=window.prompt("Your one-line reaction:", cur); if(r!==null){ (lib[p[0]]||[]).forEach(function(it){ if(it.id===p[1]) it.reaction=r.trim(); }); saveLib(lib); cloudPush(); renderLibrary(); } }; });
+  }
+  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else renderPlaceholder(state.tab); }
 
   cloudPull().then(route).catch(route);
   route();
