@@ -27,7 +27,8 @@
       "toggles": {
         "makeup": "No",
         "eat": "Inside",
-        "stanley": "Water"
+        "stanley": "Water",
+        "bath": "Shower"
       },
       "pickers": {
         "reflection": "Audiobook",
