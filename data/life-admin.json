@@ -8,10 +8,19 @@
         "phone": true,
         "tea": true,
         "reflect": true,
-        "earbuds": true
+        "earbuds": true,
+        "bed": true,
+        "retainers": true,
+        "rubbish": true,
+        "teeth": true,
+        "skin": true,
+        "makeup": true,
+        "clothes": true
       },
       "subs": {},
-      "toggles": {},
+      "toggles": {
+        "makeup": "No"
+      },
       "pickers": {
         "reflection": "Audiobook"
       },
@@ -19,7 +28,8 @@
         "_open_c1": true
       },
       "doneChunks": [
-        "c1"
+        "c1",
+        "c2"
       ],
       "finishedAt": null
     }
