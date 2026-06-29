@@ -2,7 +2,7 @@
   "cupboards": [
     {
       "name": "Basmati rice",
-      "qty": "Low, about a quarter bag (chilli + poke this week)"
+      "qty": "Half a bag"
     },
     {
       "name": "Bulgar wheat",
@@ -22,4 +22,11 @@
     },
     {
       "name": "Orzo",
-      "qty"
+      "qty": "3 packs"
+    }
+  ],
+  "freezer": [],
+  "stockTakes": {
+    "cupboards": "2026-06-29"
+  }
+}
