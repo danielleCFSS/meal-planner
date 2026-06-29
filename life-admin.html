@@ -113,6 +113,9 @@
   var LIB="lifeadmin:library";
   function loadLib(){ try{ var v=JSON.parse(localStorage.getItem(LIB)); return (v&&v.watch)?v:{watch:[],read:[],listen:[]}; }catch(e){ return {watch:[],read:[],listen:[]}; } }
   function saveLib(l){ try{ localStorage.setItem(LIB, JSON.stringify(l)); }catch(e){} }
+  var PERS="lifeadmin:personal";
+  function loadPers(){ try{ var v=JSON.parse(localStorage.getItem(PERS)); return v||{upkeep:{},goals:[],reward:{text:"",taken:false}}; }catch(e){ return {upkeep:{},goals:[],reward:{text:"",taken:false}}; } }
+  function savePers(p){ try{ localStorage.setItem(PERS, JSON.stringify(p)); }catch(e){} }
   var syncState="idle";
   async function cloudPull(){
     try{ var r=await fetch(RAW+DATA_FILE+"?t="+Date.now(),{cache:"no-store"});
@@ -120,6 +123,7 @@
         if(j.log){ var local=loadLog(); for(var d in j.log){ if(!local[d]) local[d]=j.log[d]; } saveLog(local); }
         if(j.tasks){ var lt=loadTasks(); for(var k in j.tasks){ if(!lt[k]||!lt[k].length) lt[k]=j.tasks[k]; } saveTasks(lt); }
         if(j.library){ var ll=loadLib(); for(var k2 in j.library){ if(!ll[k2]||!ll[k2].length) ll[k2]=j.library[k2]; } saveLib(ll); }
+        if(j.personal && !localStorage.getItem(PERS)){ savePers(j.personal); }
       } } }catch(e){}
   }
   async function cloudPush(){
@@ -129,7 +133,7 @@
       var sha=null;
       try{ var g=await fetch(API+DATA_FILE,{headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json"}});
         if(g.ok){ sha=(await g.json()).sha; } }catch(e){}
-      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks(), library:loadLib()},null,2))};
+      var body={message:"Life Admin update from app", content:b64(JSON.stringify({log:loadLog(), tasks:loadTasks(), library:loadLib(), personal:loadPers()},null,2))};
       if(sha) body.sha=sha;
       var p=await fetch(API+DATA_FILE,{method:"PUT",headers:{Authorization:"Bearer "+token,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
       syncState=p.ok?"saved":"error"; renderSync();
@@ -327,7 +331,7 @@
     library:{em:"📚",t:"Library",d:"Watch, read and listen, your own little library.",list:["Quick-add the moment you spot something","Pick a few from the list when you fancy watching, reading or listening","Feeds your reflection and chore options"]},
     jobs:{em:"🧺",t:"Weekend jobs",d:"The catch-all so nothing is lost.",list:["Ironing that didn't get done Wednesday","Bigger, less-frequent jobs for a Friday or the weekend"]}
   };
-  var TASK_TABS=["personal","home"];
+  var TASK_TABS=["home"];
   function taskCard(key){
     var t=loadTasks(); var list=t[key]||[];
     var h='<h1 class="section">Capture anything for this list</h1><div class="card">';
@@ -386,7 +390,57 @@
     document.querySelectorAll("[data-libsugg]").forEach(function(b){ b.onclick=function(){ var key=b.getAttribute("data-libsugg"); var lib=loadLib(); var todo=(lib[key]||[]).filter(function(i){return !i.done;}); for(var i=todo.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=todo[i]; todo[i]=todo[j]; todo[j]=t; } libSugg[key]=todo.slice(0,3).map(function(i){return i.title;}); renderLibrary(); }; });
     document.querySelectorAll("[data-libreact]").forEach(function(b){ b.onclick=function(){ var p=b.getAttribute("data-libreact").split("|"); var lib=loadLib(); var cur=""; (lib[p[0]]||[]).forEach(function(it){ if(it.id===p[1]) cur=it.reaction||""; }); var r=window.prompt("Your one-line reaction:", cur); if(r!==null){ (lib[p[0]]||[]).forEach(function(it){ if(it.id===p[1]) it.reaction=r.trim(); }); saveLib(lib); cloudPush(); renderLibrary(); } }; });
   }
-  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else renderPlaceholder(state.tab); }
+  var nourishPool=["Paint for 20 minutes","Pull a tarot card","Potter in the garden","20 minutes with your book"];
+  var persSugg=[];
+  function upkeepList(){
+    var out=[];
+    out.push({id:"botox",name:"Botox",due:new Date(2026,7,5)});
+    out.push({id:"nails",name:"Nails",due:new Date(2026,6,17)});
+    var d=new Date(); var add=(4-d.getDay()+7)%7; var thu=new Date(d); thu.setDate(d.getDate()+add); out.push({id:"tan",name:"Tan",due:thu});
+    var lh=localStorage.getItem("lifeadmin:lastHairWash"); var hd; if(lh){ hd=new Date(lh); hd.setDate(hd.getDate()+3); } else { hd=new Date(); } out.push({id:"hair",name:"Hair wash",due:hd});
+    out.push({id:"jodie",name:"Hair removal (Jodie)",due:null});
+    out.sort(function(a,b){ if(!a.due) return 1; if(!b.due) return -1; return a.due-b.due; });
+    return out;
+  }
+  function renderPersonal(){
+    var P=loadPers(); var up=upkeepList();
+    var today=new Date(); today.setHours(0,0,0,0);
+    var h='<header class="top"><p class="hi">Personal</p><div class="date">You, looked after</div></header><div class="wrap">';
+    h+='<h1 class="section">Your upkeep</h1><div class="card"><ul class="steps">';
+    up.forEach(function(t){
+      var st=P.upkeep[t.id]||{};
+      var soon = t.due ? (t.due-today)<=7*86400000 : false;
+      var dueTxt = t.due ? t.due.toLocaleDateString("en-GB",{day:"numeric",month:"short"}) : "to set";
+      h+='<li><div class="box '+(st.done?"tk":"")+'" data-perdone="'+t.id+'"></div><div class="stxt '+(st.done?"done":"")+'"><span class="lab">'+t.name+' <span class="tag'+(soon?"":" day")+'">'+(st.bookedFor?("booked "+st.bookedFor):("due "+dueTxt))+'</span></span>';
+      if(!st.bookedFor) h+='<div class="choices"><button data-perbook="'+t.id+'">Book it</button></div>';
+      h+='</div></li>';
+    });
+    h+='</ul></div>';
+    h+='<h1 class="section">This week\'s goal & reward</h1><div class="card">';
+    if(P.goals.length){ h+='<ul class="steps">'; P.goals.forEach(function(g){ h+='<li><div class="box '+(g.hit?"tk":"")+'" data-pergoal="'+g.id+'"></div><div class="stxt '+(g.hit?"done":"")+'"><span class="lab">'+g.text+'</span></div></li>'; }); h+='</ul>'; }
+    else { h+='<p style="color:var(--taupe);font-size:13px;margin:2px">Your goals appear here after the Monday plan. Add one yourself any time.</p>'; }
+    h+='<div style="display:flex;gap:8px;margin-top:8px"><input id="add_goal" placeholder="Add a goal…" style="flex:1;border:1px solid var(--line);border-radius:12px;padding:10px;font-family:inherit;font-size:14px;background:var(--cream)"/><button id="addgoal" style="flex:none;border:none;border-radius:12px;background:var(--terra);color:#fff;font-weight:700;padding:0 14px">Add</button></div>';
+    h+='<div class="noteline"><button id="setreward">'+(P.reward.text?("Reward: "+P.reward.text):"+ choose your reward")+'</button>';
+    if(P.reward.text) h+=' <button class="pill '+(P.reward.taken?"on":"")+'" id="rewardtaken">'+(P.reward.taken?"taken \u2713":"mark taken")+'</button>';
+    h+='</div></div>';
+    h+='<h1 class="section">Something nourishing</h1><div class="card"><button class="pill" id="nourish">Suggest something</button>';
+    if(persSugg.length) h+='<div style="margin-top:8px;font-size:13px;color:var(--green2)"><b>How about:</b> '+persSugg.join(" \u00B7 ")+'</div>';
+    h+='</div>';
+    h+='<h1 class="section">Health & wellbeing</h1><div class="card ph" style="padding:18px"><span class="soon">Coming soon, private</span><p style="margin-top:8px">Locked behind your token before anything goes in. Your cycle-aware gentleness keeps running through Lucy meanwhile.</p></div>';
+    h+='<div class="sync" id="syncline"></div></div>';
+    document.getElementById("app").innerHTML=h; renderSync(); bindPersonal();
+  }
+  function bindPersonal(){
+    function P(){ return loadPers(); }
+    document.querySelectorAll("[data-perbook]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-perbook"); var when=window.prompt("When have you booked it for? (e.g. 5 Aug)"); if(when!==null&&when.trim()){ var p=P(); p.upkeep[id]=p.upkeep[id]||{}; p.upkeep[id].bookedFor=when.trim(); savePers(p); cloudPush(); renderPersonal(); } }; });
+    document.querySelectorAll("[data-perdone]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-perdone"); var p=P(); p.upkeep[id]=p.upkeep[id]||{}; p.upkeep[id].done=!p.upkeep[id].done; savePers(p); cloudPush(); renderPersonal(); }; });
+    document.querySelectorAll("[data-pergoal]").forEach(function(b){ b.onclick=function(){ var id=b.getAttribute("data-pergoal"); var p=P(); p.goals.forEach(function(g){ if(g.id===id) g.hit=!g.hit; }); savePers(p); cloudPush(); renderPersonal(); }; });
+    var ag=document.getElementById("addgoal"); if(ag) ag.onclick=function(){ var inp=document.getElementById("add_goal"); var v=(inp.value||"").trim(); if(!v) return; var p=P(); p.goals.push({id:Date.now().toString(36),text:v,hit:false}); savePers(p); cloudPush(); renderPersonal(); };
+    var sr=document.getElementById("setreward"); if(sr) sr.onclick=function(){ var v=window.prompt("Choose your reward for hitting this week's goals:", P().reward.text||""); if(v!==null){ var p=P(); p.reward.text=v.trim(); savePers(p); cloudPush(); renderPersonal(); } };
+    var rt=document.getElementById("rewardtaken"); if(rt) rt.onclick=function(){ var p=P(); p.reward.taken=!p.reward.taken; savePers(p); cloudPush(); renderPersonal(); };
+    var no=document.getElementById("nourish"); if(no) no.onclick=function(){ var pool=nourishPool.slice(); var lib=loadLib(); ["watch","read","listen"].forEach(function(k){ (lib[k]||[]).filter(function(i){return !i.done;}).forEach(function(i){ pool.push(i.title); }); }); for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; } persSugg=pool.slice(0,3); renderPersonal(); };
+  }
+  function route(){ renderTabs(); if(state.tab==="today") renderToday(); else if(state.tab==="library") renderLibrary(); else if(state.tab==="personal") renderPersonal(); else renderPlaceholder(state.tab); }
 
   cloudPull().then(route).catch(route);
   route();
