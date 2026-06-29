@@ -520,6 +520,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
       } else setSync("Saved on this device. Add your token to sync.");
     };
     const markStockTake = () => persistStock({ ...stock, lastStockTake: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) });
+    const setStockTakeDate = (area, dateStr) => persistStock({ ...stock, stockTakes: { ...stock.stockTakes || {}, [area]: dateStr } });
     const addNext = (name) => {
       const v = (name || "").trim();
       if (!v) return;
@@ -704,6 +705,9 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
 .mp-sh-val{font-size:14px;font-weight:600;margin-top:2px;}
 .mp-syncbar{margin-top:10px;padding-top:12px;border-top:1px solid var(--line);}
 .mp-linkbtn{border:none;background:transparent;color:var(--olive);font:inherit;font-size:12px;text-decoration:underline;cursor:pointer;padding:0;}
+.mp-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.mp-cat{border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;}
+.mp-cat[data-on="1"]{background:var(--olive);color:#F6F3EA;border-color:var(--olive);}
 `;
     if (!loaded) {
       return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("style", null, css), /* @__PURE__ */ React.createElement("div", { className: "mp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "mp-head" }, /* @__PURE__ */ React.createElement("div", { className: "mp-eyebrow" }, "This week"), /* @__PURE__ */ React.createElement("div", { className: "mp-title" }, "Laying the table..."))));
@@ -810,16 +814,16 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     })(), tab === "stock" && (() => {
       const SECTIONS = [["cupboards", "Cupboards", "Add a cupboard item"], ["freezer", "Freezer", "Add a freezer item"], ["household", "Household", "Add a household item, eg loo roll"]];
       const q = stockSearch.toLowerCase().trim();
-      const lastStock = stock.lastStockTake ? new Date(stock.lastStockTake) : null;
-      let nextText = "due now";
-      if (lastStock) {
-        const nx = new Date(lastStock);
+      const AREAS = [["cupboards", "Cupboards"], ["fridge", "Fridge"], ["freezer", "Freezer"]];
+      const takes = stock.stockTakes || {};
+      const dueText = (ds) => {
+        if (!ds) return "not done yet";
+        const nx = new Date(ds);
         nx.setMonth(nx.getMonth() + 1);
         const days = Math.ceil((nx - /* @__PURE__ */ new Date()) / 864e5);
-        nextText = days > 0 ? "in " + days + " day" + (days === 1 ? "" : "s") : days === 0 ? "due today" : "overdue by " + -days + " day" + (days === -1 ? "" : "s");
-      }
-      const fmtD = (d) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-      return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("div", { className: "mp-stockhead" }, /* @__PURE__ */ React.createElement("div", { className: "mp-sh-cell" }, /* @__PURE__ */ React.createElement("div", { className: "mp-sh-label" }, "Last full stock take"), /* @__PURE__ */ React.createElement("div", { className: "mp-sh-val" }, lastStock ? fmtD(lastStock) : "not done yet")), /* @__PURE__ */ React.createElement("div", { className: "mp-sh-cell" }, /* @__PURE__ */ React.createElement("div", { className: "mp-sh-label" }, "Next full stock take"), /* @__PURE__ */ React.createElement("div", { className: "mp-sh-val" }, nextText)), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: markStockTake }, "Mark done today")), /* @__PURE__ */ React.createElement("input", { className: "mp-input", style: { marginBottom: 16 }, placeholder: "Search your stock, eg rice", value: stockSearch, onChange: (e) => setStockSearch(e.target.value) }), SECTIONS.map(([section, label, ph]) => {
+        return days > 0 ? "next due in " + days + " day" + (days === 1 ? "" : "s") : days === 0 ? "due today" : "overdue by " + -days + " day" + (days === -1 ? "" : "s");
+      };
+      return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("div", { className: "mp-stockhead" }, AREAS.map(([key, label]) => /* @__PURE__ */ React.createElement("div", { className: "mp-sh-cell", key }, /* @__PURE__ */ React.createElement("div", { className: "mp-sh-label" }, label, " stock take"), /* @__PURE__ */ React.createElement("input", { type: "date", className: "mp-qtyinput", style: { width: "100%", marginTop: 3 }, value: takes[key] || "", onChange: (e) => setStockTakeDate(key, e.target.value) }), /* @__PURE__ */ React.createElement("div", { className: "mp-sh-val", style: { fontSize: 11, fontWeight: 400, color: "var(--muted)", marginTop: 3 } }, dueText(takes[key]))))), /* @__PURE__ */ React.createElement("p", { className: "mp-note", style: { marginTop: 0, marginBottom: 12 } }, "Set the date you last checked each area. Leave one blank if it still needs doing."), /* @__PURE__ */ React.createElement("input", { className: "mp-input", style: { marginBottom: 16 }, placeholder: "Search your stock, eg rice", value: stockSearch, onChange: (e) => setStockSearch(e.target.value) }), SECTIONS.map(([section, label, ph]) => {
         const rows = (stock[section] || []).map((it, idx) => ({ it, idx })).filter(({ it }) => {
           const nm = ((typeof it === "string" ? it : it.name) || "").toLowerCase();
           return !q || nm.includes(q);
@@ -903,6 +907,19 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
   function RecipesTab({ recipes, setRecipes, setPlan }) {
     const blank = { id: null, name: "", servings: 2, effort: "low", time: "", description: "", steps: "", tags: [], ingredients: [{ name: "", qty: "", unit: "", aisle: "Produce" }] };
     const [form, setForm] = useState(null);
+    const [viewing, setViewing] = useState(null);
+    const [filter, setFilter] = useState("All");
+    const categoryOf = (r) => {
+      const meats = (r.ingredients || []).filter((i) => i.aisle === "Meat & fish").map((i) => (i.name || "").toLowerCase()).join(" ");
+      const hay = (r.name || "").toLowerCase() + " " + meats;
+      if (/chicken/.test(hay)) return "Chicken";
+      if (/lamb/.test(hay)) return "Lamb";
+      if (/duck/.test(hay)) return "Duck";
+      if (/(beef|steak|brisket|\bmince\b)/.test(hay)) return "Beef";
+      if (/(pork|sausage|bacon|ribs|gammon)/.test(hay)) return "Pork";
+      if (/(fish|prawn|salmon|tuna|crab|shrimp|cod|haddock|seafood)/.test(hay)) return "Fish";
+      return "Other";
+    };
     const start = (r) => setForm(r ? { ...r, tags: [...r.tags], steps: (r.steps || []).join("\n"), description: r.description || "", ingredients: r.ingredients.map((i) => ({ ...i })) } : { ...blank, ingredients: [{ name: "", qty: "", unit: "", aisle: "Produce" }] });
     const save = () => {
       const clean = {
@@ -925,7 +942,7 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
     };
     if (form) {
       const tagsValue = Array.isArray(form.tags) ? form.tags.join(", ") : form.tags;
-      return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement(
+      return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": "1", onClick: () => setForm(null), style: { marginBottom: 12 } }, "\u2190", " Back to recipes"), /* @__PURE__ */ React.createElement(
         "input",
         {
           className: "mp-input",
@@ -1035,7 +1052,17 @@ window.addEventListener("unhandledrejection", function(e){ window.__bootError((e
         AISLES.map((a) => /* @__PURE__ */ React.createElement("option", { key: a }, a))
       ), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn mp-rm", onClick: () => setForm({ ...form, ingredients: form.ingredients.filter((_, i) => i !== idx) }) }, /* @__PURE__ */ React.createElement(Trash2, { size: 15 })))), /* @__PURE__ */ React.createElement("button", { className: "mp-add", onClick: () => setForm({ ...form, ingredients: [...form.ingredients, { name: "", qty: "", unit: "", aisle: "Produce" }] }) }, /* @__PURE__ */ React.createElement(Plus, { size: 15 }), " Add ingredient"), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: save }, "Save recipe"), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": "1", onClick: () => setForm(null) }, "Cancel")));
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: () => start(null), style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(Plus, { size: 16 }), " New recipe")), recipes.map((r) => /* @__PURE__ */ React.createElement("div", { className: "mp-rcard", key: r.id }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 } }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "mp-rname" }, r.name), /* @__PURE__ */ React.createElement("div", { className: "mp-tags" }, /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, "serves ", r.servings), /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, EFFORT[r.effort] || "Low effort"), r.time ? /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, r.time, " min") : null, r.tags.map((t) => /* @__PURE__ */ React.createElement("span", { className: "mp-tag", key: t }, t)))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 2 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => start(r) }, /* @__PURE__ */ React.createElement(Pencil, { size: 16 })), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => del(r.id) }, /* @__PURE__ */ React.createElement(Trash2, { size: 16 })))), r.description && /* @__PURE__ */ React.createElement("div", { className: "mp-ing", style: { fontStyle: "italic" } }, r.description), /* @__PURE__ */ React.createElement("div", { className: "mp-ing" }, r.ingredients.map((i) => `${i.name}${i.qty ? " (" + fmtQty(i.qty) + (i.unit ? " " + i.unit : "") + ")" : ""}`).join(", ")))));
+    if (viewing) {
+      const r = viewing;
+      const ings = scaleIngredients(r, r.servings);
+      return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": "1", onClick: () => setViewing(null), style: { marginBottom: 14 } }, "\u2190", " Back to recipes"), /* @__PURE__ */ React.createElement("div", { className: "mp-rname", style: { fontSize: 22 } }, r.name), /* @__PURE__ */ React.createElement("div", { className: "mp-meal-meta", style: { marginTop: 4 } }, "serves ", r.servings, " ", "\xB7", " ", metaLine(r)), r.description && /* @__PURE__ */ React.createElement("p", { className: "mp-rdesc", style: { marginTop: 8 } }, r.description), /* @__PURE__ */ React.createElement("div", { className: "mp-rsec" }, "Ingredients"), /* @__PURE__ */ React.createElement("ul", { className: "mp-rings" }, ings.map((ing, ii) => /* @__PURE__ */ React.createElement("li", { key: ii }, ing.qty ? `${fmtQty(ing.qty)}${ing.unit ? " " + ing.unit : ""} ` : "", ing.name))), r.steps && r.steps.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "mp-rsec" }, "Method"), /* @__PURE__ */ React.createElement("ol", { className: "mp-rsteps" }, r.steps.map((s, si) => /* @__PURE__ */ React.createElement("li", { key: si }, renderStep(s, ings))))), /* @__PURE__ */ React.createElement("div", { className: "mp-row", style: { marginTop: 16 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: () => {
+        start(r);
+        setViewing(null);
+      } }, "Edit recipe"), /* @__PURE__ */ React.createElement("button", { className: "mp-btn", "data-ghost": "1", onClick: () => setViewing(null) }, "Back")));
+    }
+    const cats = ["All", ...["Chicken", "Beef", "Lamb", "Pork", "Fish", "Duck", "Other"].filter((c) => recipes.some((r) => categoryOf(r) === c))];
+    const shown = filter === "All" ? recipes : recipes.filter((r) => categoryOf(r) === filter);
+    return /* @__PURE__ */ React.createElement("div", { className: "mp-section" }, /* @__PURE__ */ React.createElement("button", { className: "mp-btn", onClick: () => start(null), style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement(Plus, { size: 16 }), " New recipe")), /* @__PURE__ */ React.createElement("div", { className: "mp-cats" }, cats.map((c) => /* @__PURE__ */ React.createElement("button", { className: "mp-cat", key: c, "data-on": filter === c ? 1 : 0, onClick: () => setFilter(c) }, c === "All" ? "All (" + recipes.length + ")" : c))), shown.map((r) => /* @__PURE__ */ React.createElement("div", { className: "mp-rcard", key: r.id }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-name-btn", onClick: () => setViewing(r), style: { flex: 1, minWidth: 0, display: "block", textAlign: "left" } }, /* @__PURE__ */ React.createElement("span", { className: "mp-rname", style: { display: "block", color: "var(--olive)" } }, r.name), /* @__PURE__ */ React.createElement("span", { className: "mp-tags", style: { display: "flex", marginTop: 6 } }, /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, "serves ", r.servings), /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, EFFORT[r.effort] || "Low effort"), r.time ? /* @__PURE__ */ React.createElement("span", { className: "mp-tag" }, r.time, " min") : null)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 2 } }, /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => start(r) }, /* @__PURE__ */ React.createElement(Pencil, { size: 16 })), /* @__PURE__ */ React.createElement("button", { className: "mp-icbtn", onClick: () => del(r.id) }, /* @__PURE__ */ React.createElement(Trash2, { size: 16 })))), r.description && /* @__PURE__ */ React.createElement("div", { className: "mp-ing", style: { fontStyle: "italic", marginTop: 8 } }, r.description))));
   }
   var __container = document.getElementById("root");
   try {
