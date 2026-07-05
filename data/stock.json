@@ -1,29 +1,11 @@
 {
   "cupboards": [
-    {
-      "name": "Basmati rice",
-      "qty": "Half a bag"
-    },
-    {
-      "name": "Bulgar wheat",
-      "qty": "3.5 packs"
-    },
-    {
-      "name": "Lasagne sheets",
-      "qty": "1 pack"
-    },
-    {
-      "name": "Proper spaghetti pasta",
-      "qty": "2 packs"
-    },
-    {
-      "name": "Rubbish spaghetti pasta",
-      "qty": "3 packs"
-    },
-    {
-      "name": "Orzo",
-      "qty": "3 packs"
-    }
+    {"name": "Basmati rice", "qty": "Half a bag"},
+    {"name": "Bulgar wheat", "qty": "3.5 packs"},
+    {"name": "Lasagne sheets", "qty": "1 pack"},
+    {"name": "Proper spaghetti pasta", "qty": "2 packs"},
+    {"name": "Rubbish spaghetti pasta", "qty": "3 packs"},
+    {"name": "Orzo", "qty": "2.5 packs"}
   ],
   "freezer": [],
   "stockTakes": {
@@ -31,9 +13,6 @@
     "fridge": "2026-06-28"
   },
   "household": [
-    {
-      "name": "Oven pride",
-      "qty": "2 packs"
-    }
+    {"name": "Oven pride", "qty": "2 packs"}
   ]
 }
