@@ -2,7 +2,7 @@
   "cupboards": [
     {
       "name": "Basmati rice",
-      "qty": "A third of a bag"
+      "qty": "A quarter of a bag (roughly)"
     },
     {
       "name": "Bulgar wheat",
@@ -14,7 +14,7 @@
     },
     {
       "name": "Proper spaghetti pasta",
-      "qty": "2 packs"
+      "qty": "1.5 packs"
     },
     {
       "name": "Rubbish spaghetti pasta",
@@ -22,10 +22,15 @@
     },
     {
       "name": "Orzo",
-      "qty": "2.5 packs"
+      "qty": "2.25 packs"
     }
   ],
-  "freezer": [],
+  "freezer": [
+    {
+      "name": "Honey & sriracha chicken (cooked)",
+      "qty": "2 x 2-portion tubs"
+    }
+  ],
   "stockTakes": {
     "cupboards": "2026-06-28",
     "fridge": "2026-06-28"

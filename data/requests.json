@@ -9,7 +9,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-12",
-      "status": "pending"
+      "status": "scheduled",
+      "statusNote": "Built it and planned for Wednesday, your quietest evening. That garlic sauce sounds worth it."
     },
     {
       "id": "lc8drgm",
@@ -20,7 +21,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-12",
-      "status": "pending"
+      "status": "parked",
+      "statusNote": "Got the full shawarma recipe and saved it. It needs a long marinade and it is a big cook, so I am holding it for a quieter week."
     },
     {
       "id": "xxbvef5",
@@ -31,7 +33,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-14",
-      "status": "pending"
+      "status": "parked",
+      "statusNote": "Your reel is the oven-grilled chicken wraps, I saved that recipe. It needs marinating ahead, so saving it for a calmer week."
     },
     {
       "id": "p80zm16",
@@ -42,7 +45,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-15",
-      "status": "pending"
+      "status": "needs-info",
+      "statusNote": "The reel only lists ingredients with no amounts or method, so I cannot build it accurately. Could you send the caption or a clearer recipe?"
     }
   ]
 }
