@@ -47,6 +47,17 @@
       "date": "2026-07-15",
       "status": "needs-info",
       "statusNote": "The reel only lists ingredients with no amounts or method, so I cannot build it accurately. Could you send the caption or a clearer recipe?"
+    },
+    {
+      "id": "5mis4z1",
+      "type": "new",
+      "name": "Tomato Noodles",
+      "link": "https://www.instagram.com/reel/DZss42Ngaan/?igsh=MXhuNmJqaHFpbTJlZQ==",
+      "note": "",
+      "images": [],
+      "from": "Jack",
+      "date": "2026-07-18",
+      "status": "pending"
     }
   ]
 }
