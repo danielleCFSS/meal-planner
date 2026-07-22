@@ -1,0 +1,39 @@
+{
+  "weekId": "2026-07-20",
+  "plan": {
+    "Mon": [
+      {
+        "eid": "r1xfy20",
+        "recipeId": "tuna-mushroom-pasta",
+        "serves": 4
+      }
+    ],
+    "Tue": [
+      {
+        "eid": "sdjdhke",
+        "recipeId": "honey-sriracha-chicken",
+        "serves": 6
+      }
+    ],
+    "Wed": [
+      {
+        "eid": "xo5cjrh",
+        "recipeId": "steak-wraps",
+        "serves": 2
+      }
+    ],
+    "Thu": [
+      {
+        "eid": "i20a9ky",
+        "recipeId": "prawn-red-pepper-orzo",
+        "serves": 3
+      }
+    ],
+    "Fri": [],
+    "Sat": [],
+    "Sun": []
+  },
+  "dayGuests": {},
+  "household": 2,
+  "updated": 1784741037438
+}
