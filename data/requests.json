@@ -57,7 +57,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-18",
-      "status": "pending"
+      "status": "needs-info",
+      "statusNote": "I opened the reel but the caption has no written recipe and the method is only shown in the video, so I can't build it accurately without guessing. Could you send the ingredients and steps, or a screenshot of the recipe? Then I'll add it properly."
     },
     {
       "id": "f2i3wgc",
@@ -68,7 +69,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-23",
-      "status": "pending"
+      "status": "scheduled",
+      "statusNote": "Built it and planned for Monday, your busiest day. It looks after itself in the oven while you host the practice group, so it is the easiest possible start to the week."
     }
   ]
 }
