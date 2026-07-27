@@ -7,7 +7,13 @@
         "serves": 2
       }
     ],
-    "Tue": [],
+    "Tue": [
+      {
+        "eid": "ec0pfim",
+        "recipeId": "spaghetti-bolognaise",
+        "serves": 4
+      }
+    ],
     "Wed": [
       {
         "recipeId": "salmon-poke-bowl",
@@ -26,5 +32,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785134296766
+  "updated": 1785149190188
 }
