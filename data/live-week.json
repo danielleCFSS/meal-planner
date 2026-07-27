@@ -1,1 +1,30 @@
-{"weekId": "2026-07-27", "plan": {"Mon": [{"recipeId": "loaded-jacket-potato", "serves": 2}], "Tue": [{"recipeId": "crab-meat-tacos", "serves": 2}], "Wed": [{"recipeId": "salmon-poke-bowl", "serves": 2}], "Thu": [{"recipeId": "sausage-leek-kale-tortellini", "serves": 2}], "Fri": [], "Sat": [], "Sun": []}, "dayGuests": {}, "household": 2, "updated": "20260724162748"}
+{
+  "weekId": "2026-07-27",
+  "plan": {
+    "Mon": [
+      {
+        "recipeId": "loaded-jacket-potato",
+        "serves": 2
+      }
+    ],
+    "Tue": [],
+    "Wed": [
+      {
+        "recipeId": "salmon-poke-bowl",
+        "serves": 2
+      }
+    ],
+    "Thu": [
+      {
+        "recipeId": "sausage-leek-kale-tortellini",
+        "serves": 2
+      }
+    ],
+    "Fri": [],
+    "Sat": [],
+    "Sun": []
+  },
+  "dayGuests": {},
+  "household": 2,
+  "updated": 1785134296766
+}
