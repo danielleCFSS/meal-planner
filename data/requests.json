@@ -71,6 +71,17 @@
       "date": "2026-07-23",
       "status": "scheduled",
       "statusNote": "Built it and planned for Monday, your busiest day. It looks after itself in the oven while you host the practice group, so it is the easiest possible start to the week."
+    },
+    {
+      "id": "30h512e",
+      "type": "new",
+      "name": "Minced meat cups",
+      "link": "https://www.instagram.com/reel/DanCxx4gCf3/?igsh=MXBqcWI2aWRqOWtudQ==",
+      "note": "",
+      "images": [],
+      "from": "Jack",
+      "date": "2026-07-27",
+      "status": "pending"
     }
   ]
 }
