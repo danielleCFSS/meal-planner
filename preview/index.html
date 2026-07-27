@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#5E6B43"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Recipe preview"/>
+<title>Recipe preview</title>
+<style>html,body{margin:0;padding:0;background:#ECEADF;}
+#boot{padding:28px 18px;font:16px/1.5 system-ui,-apple-system,sans-serif;color:#7C7768;}
+.diag{padding:18px;font:14px/1.6 system-ui,sans-serif;color:#a33;white-space:pre-wrap;}
+
+.mp{--paper:#ECEADF;--card:#F8F6EE;--ink:#33302A;--muted:#7C7768;--olive:#5E6B43;--clay:#B0633C;--line:#D9D3C4;
+  background:var(--paper);color:var(--ink);min-height:100vh;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;}
+.rp-wrap{max-width:640px;margin:0 auto;padding:0 18px 64px;}
+.rp-banner{margin:14px 0 2px;display:inline-block;font-size:12px;color:var(--olive);background:#EBEBDD;border:1px solid var(--line);padding:4px 10px;border-radius:999px;}
+.rp-head{padding:14px 0 6px;}
+.rp-kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.rp-title{font-family:"Fraunces",Georgia,serif;font-size:30px;line-height:1.08;font-weight:600;margin:4px 0 8px;}
+.rp-desc{color:var(--muted);font-size:15px;line-height:1.5;margin:0;}
+.rp-controls{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px 12px;margin:16px 0 8px;}
+.rp-serves{display:flex;align-items:center;gap:10px;}
+.rp-clabel{font-size:14px;color:var(--muted);}
+.rp-step{width:34px;height:34px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--olive);
+  font-size:20px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.rp-step:active{background:#e3e0d3;}
+.rp-count{font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:600;min-width:20px;text-align:center;}
+.rp-toggle{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--paper);}
+.rp-tg{border:none;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--muted);padding:7px 13px;cursor:pointer;}
+.rp-tg.on{background:var(--olive);color:#F6F3EA;}
+.rp-section{margin-top:18px;}
+.rp-aisle{font-family:"Fraunces",Georgia,serif;font-size:16px;font-weight:600;color:var(--olive);margin:0 0 8px;}
+.rp-ings{list-style:none;margin:0;padding:0;}
+.rp-ing{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline;}
+.rp-iamt{font-weight:700;min-width:74px;flex-shrink:0;font-variant-numeric:tabular-nums;}
+.rp-iname{color:var(--ink);}
+.rp-stepcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px;margin-bottom:11px;}
+.rp-steptop{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.rp-num{width:24px;height:24px;flex-shrink:0;border-radius:999px;background:var(--olive);color:#F6F3EA;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;justify-content:center;}
+.rp-stitle{font-family:"Fraunces",Georgia,serif;font-size:17px;font-weight:600;}
+.rp-scontent{margin:0;line-height:1.55;font-size:15px;}
+.rp-amt{font-weight:700;background:#EBE7D8;border-radius:5px;padding:0 4px;white-space:nowrap;}
+.rp-timer{margin-top:11px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--clay);background:var(--paper);
+  color:var(--clay);font:inherit;font-weight:600;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer;}
+.rp-timer:active{background:#efe7df;}
+.rp-timer-live{margin-top:11px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--paper);border:1px solid var(--clay);border-radius:11px;padding:9px 13px;}
+.rp-tclock{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:17px;color:var(--clay);font-variant-numeric:tabular-nums;}
+.rp-timer-done{border-color:var(--olive);color:var(--olive);font-weight:600;justify-content:space-between;}
+.rp-tlink{border:none;background:transparent;font:inherit;font-weight:600;font-size:14px;color:var(--olive);cursor:pointer;padding:2px 4px;text-decoration:underline;}
+.rp-notes{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:6px 14px;}
+.rp-note{margin:10px 0;line-height:1.55;font-size:14px;color:var(--ink);}
+.rp-foot{margin-top:22px;text-align:center;color:var(--muted);font-size:13px;}
+
+</style>
+<script>
+window.__bootError = function(msg){
+  var r = document.getElementById("root");
+  if (r) r.innerHTML = '<div class="diag">The preview hit a problem:\n\n' + msg + '\n\nTell Lucy what this says and she will fix it.</div>';
+};
+window.addEventListener("error", function(e){ window.__bootError((e && e.message) || "script error"); });
+window.addEventListener("unhandledrejection", function(e){ window.__bootError((e && e.reason && e.reason.message) || "load error"); });
+</script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+</head>
+<body>
+<div id="root"><div id="boot">Warming the oven...</div></div>
+<noscript>This preview needs JavaScript switched on.</noscript>
+<script>
+(() => {
+  const { useState, useEffect, useRef } = React;
+  const RECIPE = {
+    id: "spicy-chicken-mozzarella-fusilli-bake",
+    title: "Spicy Chicken and Mozzarella Fusilli Bake",
+    description: "Chicken and bacon in a chilli tomato sauce, tossed through fusilli and baked under mozzarella and Parmesan.",
+    base_servings: 2,
+    ingredients: [
+      { id: "0001", name: "chicken breasts, cut into chunks", amount: 2, unit: "" },
+      { id: "0002", name: "streaky bacon rashers, chopped", amount: 4, unit: "" },
+      { id: "0003", name: "fusilli", amount: 200, unit: "g" },
+      { id: "0004", name: "tinned chopped tomatoes", amount: 400, unit: "g" },
+      { id: "0005", name: "chicken stock pot", amount: 1, unit: "" },
+      { id: "0006", name: "tomato paste", amount: 1, unit: "tbsp" },
+      { id: "0007", name: "sundried tomato paste", amount: 1, unit: "tbsp" },
+      { id: "0008", name: "anchovy fillets, chopped", amount: 2, unit: "" },
+      { id: "0009", name: "garlic paste", amount: 1, unit: "tsp" },
+      { id: "0010", name: "chilli flakes", amount: 1, unit: "tsp" },
+      { id: "0011", name: "smoked paprika", amount: 1, unit: "tsp" },
+      { id: "0012", name: "dried oregano", amount: 1, unit: "tsp" },
+      { id: "0013", name: "double cream", amount: 3, unit: "tbsp" },
+      { id: "0014", name: "mozzarella ball, torn", amount: 125, unit: "g" },
+      { id: "0015", name: "Parmesan, grated", amount: 30, unit: "g" },
+      { id: "0016", name: "cherry tomatoes, halved", amount: 8, unit: "" },
+      { id: "0017", name: "fresh parsley, chopped", amount: 2, unit: "tbsp" },
+      { id: "0018", name: "olive oil", amount: 1, unit: "tbsp" },
+      { id: "0019", name: "black pepper", amount: 0.25, unit: "tsp" }
+    ],
+    steps: [
+      { id: "s1", title: "Heat the oven", content: "Heat the oven to 200C fan. Put a large pan of salted water on to boil." },
+      { id: "s2", title: "Crisp the bacon", timer_seconds: 360, content: "Fry {0002} in {0018} over a medium heat until the fat has rendered and the edges are crisp. Lift out and set aside, leaving the fat in the pan." },
+      { id: "s3", title: "Brown the chicken", timer_seconds: 300, content: "Turn the heat up and add {0001}. Season with {0019}. Brown all over, about 5 minutes. It does not need to be cooked through." },
+      { id: "s4", title: "Build the sauce base", timer_seconds: 60, content: "Lower the heat. Add {0009}, {0008}, {0010}, {0011} and {0012}. Stir for a minute until the anchovies have broken down completely." },
+      { id: "s5", title: "Simmer", timer_seconds: 600, content: "Stir in {0006}, {0007}, {0004} and {0005}. Half fill the tin with water, swill it out and add that too. Simmer for 10 minutes until thickened and the stock pot has fully dissolved." },
+      { id: "s6", title: "Cook the pasta", content: "While the sauce simmers, cook {0003} for 2 minutes less than the packet says. Drain, keeping a mugful of the water." },
+      { id: "s7", title: "Bring it together", content: "Stir {0013} into the sauce, then the drained pasta, the crisp bacon and {0016}. Loosen with a splash of pasta water if it looks tight. Taste and adjust the chilli, then season with salt only if it needs it." },
+      { id: "s8", title: "Bake", timer_seconds: 1e3, content: "Tip into an oven dish. Scatter over {0014} and {0015}. Bake for 15 to 18 minutes until bubbling and browned on top." },
+      { id: "s9", title: "Rest and serve", timer_seconds: 300, content: "Rest for 5 minutes, then scatter with {0017} and serve." }
+    ],
+    notes: "Heat: 1 tsp chilli flakes gives a gentle warmth. Double it for a proper kick, or add a chopped fresh chilli with the garlic for a sharper heat.\nSalt: the stock pot, bacon, anchovies and Parmesan all bring salt, so taste before adding any more.\nOptional: slice a vine tomato over the top before baking. Green pesto does not work here, it fights with the smoked paprika."
+  };
+  const fmtNum = (n) => {
+    const r = Math.round(n * 100) / 100;
+    return Number.isInteger(r) ? String(r) : String(r).replace(/\.?0+$/, "");
+  };
+  const roundTo = (n, step) => Math.round(n / step) * step;
+  function displayAmount(ing, servings, imperial) {
+    let v = ing.amount * (servings / RECIPE.base_servings);
+    const u = ing.unit;
+    if (!u) {
+      v = roundTo(v, 0.5);
+      if (v < 0.5) v = 0.5;
+      return { text: fmtNum(v), unit: "" };
+    }
+    if (imperial) {
+      if (u === "g") return { text: fmtNum(roundTo(v / 28.3495, 0.25)), unit: "oz" };
+      if (u === "kg") return { text: fmtNum(roundTo(v * 2.20462, 0.25)), unit: "lb" };
+      if (u === "ml") return { text: fmtNum(roundTo(v / 29.5735, 0.25)), unit: "fl oz" };
+      if (u === "l") return { text: fmtNum(roundTo(v * 4.22675, 0.25)), unit: "cups" };
+    }
+    if (u === "tsp" || u === "tbsp" || u === "cup") v = roundTo(v, 0.25);
+    else if (u === "g" || u === "ml") v = v >= 100 ? roundTo(v, 10) : v >= 20 ? roundTo(v, 5) : roundTo(v, 1);
+    else if (u === "kg" || u === "l") v = roundTo(v, 0.1);
+    else v = roundTo(v, 0.25);
+    return { text: fmtNum(v), unit: u };
+  }
+  const amountLabel = (d) => d.unit ? d.text + " " + d.unit : d.text;
+  function renderContent(content, servings, imperial) {
+    const out = [];
+    const re = /\{([0-9A-Za-z_]+)\}/g;
+    let last = 0, m, k = 0;
+    while (m = re.exec(content)) {
+      if (m.index > last) out.push(content.slice(last, m.index));
+      const ing = RECIPE.ingredients.find((i) => i.id === m[1]);
+      if (ing) {
+        const d = displayAmount(ing, servings, imperial);
+        out.push(/* @__PURE__ */ React.createElement("strong", { className: "rp-amt", key: "amt" + k }, amountLabel(d)));
+        out.push(" " + ing.name);
+      } else {
+        out.push(m[0]);
+      }
+      last = re.lastIndex;
+      k++;
+    }
+    if (last < content.length) out.push(content.slice(last));
+    return out;
+  }
+  const mmss = (s) => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const durLabel = (s) => s % 60 === 0 ? s / 60 + " min" : mmss(s);
+  function ding() {
+    try {
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (e) {
+    }
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = 880;
+      o.connect(g);
+      g.connect(ctx.destination);
+      g.gain.setValueAtTime(1e-4, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(1e-4, ctx.currentTime + 0.8);
+      o.start();
+      o.stop(ctx.currentTime + 0.85);
+    } catch (e) {
+    }
+  }
+  function StepTimer({ step, state, onStart, onPause, onReset }) {
+    const st = state || null;
+    if (!st) {
+      return /* @__PURE__ */ React.createElement("button", { className: "rp-timer", onClick: onStart }, "\u23F1", " Start timer ", "\xB7", " ", durLabel(step.timer_seconds));
+    }
+    if (st.done) {
+      return /* @__PURE__ */ React.createElement("div", { className: "rp-timer-live rp-timer-done" }, /* @__PURE__ */ React.createElement("span", null, step.title, " ", "\xB7", " done ", "\u2713"), /* @__PURE__ */ React.createElement("button", { className: "rp-tlink", onClick: onReset }, "Reset"));
+    }
+    return /* @__PURE__ */ React.createElement("div", { className: "rp-timer-live" }, /* @__PURE__ */ React.createElement("span", { className: "rp-tclock" }, step.title, " ", "\xB7", " ", mmss(st.remaining)), st.running ? /* @__PURE__ */ React.createElement("button", { className: "rp-tlink", onClick: onPause }, "Pause") : /* @__PURE__ */ React.createElement("button", { className: "rp-tlink", onClick: onStart }, "Resume"), /* @__PURE__ */ React.createElement("button", { className: "rp-tlink", onClick: onReset }, "Reset"));
+  }
+  function App() {
+    const [servings, setServings] = useState(RECIPE.base_servings);
+    const [imperial, setImperial] = useState(false);
+    const [timers, setTimers] = useState({});
+    useEffect(() => {
+      const id = setInterval(() => {
+        setTimers((prev) => {
+          let changed = false;
+          const next = { ...prev };
+          for (const k in next) {
+            if (next[k].running && next[k].remaining > 0) {
+              const rem = next[k].remaining - 1;
+              next[k] = { ...next[k], remaining: rem, running: rem > 0, done: rem === 0 };
+              changed = true;
+              if (rem === 0) ding();
+            }
+          }
+          return changed ? next : prev;
+        });
+      }, 1e3);
+      return () => clearInterval(id);
+    }, []);
+    const startTimer = (step) => setTimers((p) => {
+      const cur = p[step.id];
+      const remaining = cur && cur.remaining > 0 && !cur.done ? cur.remaining : step.timer_seconds;
+      return { ...p, [step.id]: { remaining, running: true, done: false } };
+    });
+    const pauseTimer = (step) => setTimers((p) => p[step.id] ? { ...p, [step.id]: { ...p[step.id], running: false } } : p);
+    const resetTimer = (step) => setTimers((p) => {
+      const n = { ...p };
+      delete n[step.id];
+      return n;
+    });
+    return /* @__PURE__ */ React.createElement("div", { className: "mp" }, /* @__PURE__ */ React.createElement("div", { className: "rp-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "rp-banner" }, "Recipe preview ", "\xB7", " testing the new format"), /* @__PURE__ */ React.createElement("div", { className: "rp-head" }, /* @__PURE__ */ React.createElement("div", { className: "rp-kicker" }, "Recipe"), /* @__PURE__ */ React.createElement("h1", { className: "rp-title" }, RECIPE.title), /* @__PURE__ */ React.createElement("p", { className: "rp-desc" }, RECIPE.description)), /* @__PURE__ */ React.createElement("div", { className: "rp-controls" }, /* @__PURE__ */ React.createElement("div", { className: "rp-serves" }, /* @__PURE__ */ React.createElement("span", { className: "rp-clabel" }, "Serves"), /* @__PURE__ */ React.createElement("button", { className: "rp-step", onClick: () => setServings((s) => Math.max(1, s - 1)), "aria-label": "Fewer servings" }, "\u2212"), /* @__PURE__ */ React.createElement("span", { className: "rp-count" }, servings), /* @__PURE__ */ React.createElement("button", { className: "rp-step", onClick: () => setServings((s) => s + 1), "aria-label": "More servings" }, "+")), /* @__PURE__ */ React.createElement("div", { className: "rp-toggle", role: "group", "aria-label": "Units" }, /* @__PURE__ */ React.createElement("button", { className: "rp-tg" + (!imperial ? " on" : ""), onClick: () => setImperial(false) }, "Metric"), /* @__PURE__ */ React.createElement("button", { className: "rp-tg" + (imperial ? " on" : ""), onClick: () => setImperial(true) }, "US"))), /* @__PURE__ */ React.createElement("div", { className: "rp-section" }, /* @__PURE__ */ React.createElement("div", { className: "rp-aisle" }, "Ingredients"), /* @__PURE__ */ React.createElement("ul", { className: "rp-ings" }, RECIPE.ingredients.map((ing) => {
+      const d = displayAmount(ing, servings, imperial);
+      return /* @__PURE__ */ React.createElement("li", { className: "rp-ing", key: ing.id }, /* @__PURE__ */ React.createElement("span", { className: "rp-iamt" }, amountLabel(d)), /* @__PURE__ */ React.createElement("span", { className: "rp-iname" }, ing.name));
+    }))), /* @__PURE__ */ React.createElement("div", { className: "rp-section" }, /* @__PURE__ */ React.createElement("div", { className: "rp-aisle" }, "Method"), RECIPE.steps.map((step, i) => /* @__PURE__ */ React.createElement("div", { className: "rp-stepcard", key: step.id }, /* @__PURE__ */ React.createElement("div", { className: "rp-steptop" }, /* @__PURE__ */ React.createElement("span", { className: "rp-num" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "rp-stitle" }, step.title)), /* @__PURE__ */ React.createElement("p", { className: "rp-scontent" }, renderContent(step.content, servings, imperial)), step.timer_seconds ? /* @__PURE__ */ React.createElement(
+      StepTimer,
+      {
+        step,
+        state: timers[step.id],
+        onStart: () => startTimer(step),
+        onPause: () => pauseTimer(step),
+        onReset: () => resetTimer(step)
+      }
+    ) : null))), RECIPE.notes ? /* @__PURE__ */ React.createElement("div", { className: "rp-section" }, /* @__PURE__ */ React.createElement("div", { className: "rp-aisle" }, "Notes"), /* @__PURE__ */ React.createElement("div", { className: "rp-notes" }, RECIPE.notes.split("\n").map((line, i) => /* @__PURE__ */ React.createElement("p", { className: "rp-note", key: i }, line)))) : null, /* @__PURE__ */ React.createElement("div", { className: "rp-foot" }, "Preview only. Once you are happy with how this behaves, I will fold it into the app.")));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
+})();
+
+</script>
+<script>
+setTimeout(function(){
+  if (document.getElementById("boot")) {
+    var miss = [];
+    if (typeof React === "undefined") miss.push("React");
+    if (typeof ReactDOM === "undefined") miss.push("ReactDOM");
+    var msg = miss.length
+      ? ("Could not load: " + miss.join(", ") + ". This usually means there was no internet connection when the page opened. Connect and reopen it.")
+      : "The preview did not start. Tell Lucy and she will fix it.";
+    window.__bootError(msg);
+  }
+}, 4000);
+</script>
+</body>
+</html>
