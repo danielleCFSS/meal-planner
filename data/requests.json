@@ -81,18 +81,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-27",
-      "status": "pending"
-    },
-    {
-      "id": "tufqfye",
-      "type": "new",
-      "name": "Marinated Chicken Taziki Wraps",
-      "link": "",
-      "note": "",
-      "images": [],
-      "from": "Jack",
-      "date": "2026-07-27",
-      "status": "pending"
+      "status": "needs-info",
+      "statusNote": "The caption lists every ingredient but not the method, and the video only shows it. Send a screenshot of the steps, or tell me roughly what happens, and I will build it properly."
     },
     {
       "id": "3bnwfs2",
@@ -103,7 +93,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-27",
-      "status": "pending"
+      "status": "needs-info",
+      "statusNote": "This is Jack Munn\u2019s chicken gyros and the full recipe lives in his Gather Round app, not the caption. Screenshot the recipe from the app and I will build it in. You had this in twice, so I have folded the two into one."
     },
     {
       "id": "hnpzwqn",
@@ -114,7 +105,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-28",
-      "status": "pending"
+      "status": "scheduled",
+      "statusNote": "Built it and planned for Wednesday, the clearest evening this week. Written for the air fryer, with chipotle paste standing in for the adobo tin, which is easier to find here."
     },
     {
       "id": "rimxwfz",
@@ -125,7 +117,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-30",
-      "status": "pending"
+      "status": "parked",
+      "statusNote": "No written recipe on this reel, but it is the same crispy chicken shawarma I already saved from your July request. Still holding it for a quieter cooking week, it is a marinade-ahead big cook."
     }
   ]
 }

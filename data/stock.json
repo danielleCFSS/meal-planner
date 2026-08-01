@@ -1,10 +1,6 @@
 {
   "cupboards": [
     {
-      "name": "Basmati rice",
-      "qty": "A little left (used some for the poke)"
-    },
-    {
       "name": "Bulgar wheat",
       "qty": "3.5 packs"
     },
@@ -22,13 +18,13 @@
     },
     {
       "name": "Orzo",
-      "qty": "2.25 packs"
+      "qty": "1.75 packs"
     }
   ],
   "freezer": [
     {
       "name": "Honey & sriracha chicken (cooked)",
-      "qty": "2 x 2-portion tubs"
+      "qty": "1 x 2-portion tub"
     }
   ],
   "stockTakes": {
