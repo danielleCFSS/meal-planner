@@ -1,1 +1,40 @@
-{"weekId": "2026-08-03", "plan": {"Mon": [{"recipeId": "chicken-stroganoff", "serves": 2}], "Tue": [{"recipeId": "creamy-beef-mushroom-orzotto", "serves": 2}], "Wed": [{"recipeId": "chipotle-honey-chicken-tenders", "serves": 2}], "Thu": [{"recipeId": "honey-sriracha-chicken", "serves": 2}], "Fri": [], "Sat": [], "Sun": []}, "dayGuests": {}, "household": 2, "updated": "20260801112119"}
+{
+  "weekId": "2026-08-03",
+  "plan": {
+    "Mon": [
+      {
+        "recipeId": "chicken-stroganoff",
+        "serves": 2
+      },
+      {
+        "eid": "qj0y28q",
+        "recipeId": "sausage-leek-kale-tortellini",
+        "serves": 2
+      }
+    ],
+    "Tue": [
+      {
+        "recipeId": "creamy-beef-mushroom-orzotto",
+        "serves": 2
+      }
+    ],
+    "Wed": [
+      {
+        "recipeId": "chipotle-honey-chicken-tenders",
+        "serves": 2
+      }
+    ],
+    "Thu": [
+      {
+        "recipeId": "honey-sriracha-chicken",
+        "serves": 2
+      }
+    ],
+    "Fri": [],
+    "Sat": [],
+    "Sun": []
+  },
+  "dayGuests": {},
+  "household": 2,
+  "updated": 1785747138499
+}
