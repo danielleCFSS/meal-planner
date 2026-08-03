@@ -1,13 +1,7 @@
 {
   "weekId": "2026-08-03",
   "plan": {
-    "Mon": [
-      {
-        "eid": "qj0y28q",
-        "recipeId": "sausage-leek-kale-tortellini",
-        "serves": 2
-      }
-    ],
+    "Mon": [],
     "Tue": [
       {
         "recipeId": "creamy-beef-mushroom-orzotto",
@@ -32,5 +26,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785747141260
+  "updated": 1785747164483
 }
