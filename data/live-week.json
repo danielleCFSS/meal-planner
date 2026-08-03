@@ -3,10 +3,6 @@
   "plan": {
     "Mon": [
       {
-        "recipeId": "chicken-stroganoff",
-        "serves": 2
-      },
-      {
         "eid": "qj0y28q",
         "recipeId": "sausage-leek-kale-tortellini",
         "serves": 2
@@ -36,5 +32,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785747138499
+  "updated": 1785747141260
 }
