@@ -19,17 +19,12 @@
         "serves": 2
       }
     ],
-    "Thu": [
-      {
-        "recipeId": "honey-sriracha-chicken",
-        "serves": 2
-      }
-    ],
+    "Thu": [],
     "Fri": [],
     "Sat": [],
     "Sun": []
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785830724208
+  "updated": 1785830745852
 }
