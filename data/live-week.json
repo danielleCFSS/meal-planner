@@ -6,6 +6,11 @@
       {
         "recipeId": "creamy-beef-mushroom-orzotto",
         "serves": 2
+      },
+      {
+        "eid": "9zknohy",
+        "recipeId": "chilli-con-carne",
+        "serves": 4
       }
     ],
     "Wed": [
@@ -26,5 +31,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785747203231
+  "updated": 1785830724208
 }
