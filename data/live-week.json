@@ -4,10 +4,6 @@
     "Mon": [],
     "Tue": [
       {
-        "recipeId": "creamy-beef-mushroom-orzotto",
-        "serves": 2
-      },
-      {
         "eid": "9zknohy",
         "recipeId": "chilli-con-carne",
         "serves": 4
@@ -26,5 +22,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785830745852
+  "updated": 1785830757202
 }
