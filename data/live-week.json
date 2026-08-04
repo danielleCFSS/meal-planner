@@ -13,6 +13,11 @@
       {
         "recipeId": "honey-sriracha-chicken",
         "serves": 2
+      },
+      {
+        "eid": "j5kb4g6",
+        "recipeId": "chilli-con-carne",
+        "serves": 4
       }
     ],
     "Fri": [],
@@ -21,5 +26,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785830886917
+  "updated": 1785830896360
 }
