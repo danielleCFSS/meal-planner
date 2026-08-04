@@ -2,25 +2,24 @@
   "weekId": "2026-08-03",
   "plan": {
     "Mon": [],
-    "Tue": [
-      {
-        "eid": "9zknohy",
-        "recipeId": "chilli-con-carne",
-        "serves": 4
-      }
-    ],
+    "Tue": [],
     "Wed": [
       {
         "recipeId": "chipotle-honey-chicken-tenders",
         "serves": 2
       }
     ],
-    "Thu": [],
+    "Thu": [
+      {
+        "recipeId": "honey-sriracha-chicken",
+        "serves": 2
+      }
+    ],
     "Fri": [],
     "Sat": [],
     "Sun": []
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785830757202
+  "updated": 1785830886917
 }
