@@ -15,7 +15,13 @@
         "serves": 4
       }
     ],
-    "Wed": [],
+    "Wed": [
+      {
+        "eid": "s61668r",
+        "recipeId": "oven-grilled-chicken-wraps",
+        "serves": 4
+      }
+    ],
     "Thu": [
       {
         "eid": "j5kb4g6",
@@ -29,5 +35,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786347332370
+  "updated": 1786347372196
 }
