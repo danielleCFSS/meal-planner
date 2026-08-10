@@ -25,7 +25,7 @@
     "Thu": [
       {
         "eid": "j5kb4g6",
-        "recipeId": "chilli-con-carne",
+        "recipeId": "loaded-jacket-potato",
         "serves": 4
       }
     ],
@@ -35,5 +35,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786347406119
+  "updated": 1786347433771
 }
