@@ -8,7 +8,13 @@
         "serves": 4
       }
     ],
-    "Tue": [],
+    "Tue": [
+      {
+        "eid": "k1qf7ao",
+        "recipeId": "chicken-biryani",
+        "serves": 4
+      }
+    ],
     "Wed": [
       {
         "recipeId": "chipotle-honey-chicken-tenders",
@@ -28,5 +34,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786347296691
+  "updated": 1786347324077
 }
