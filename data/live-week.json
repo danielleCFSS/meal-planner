@@ -15,12 +15,7 @@
         "serves": 4
       }
     ],
-    "Wed": [
-      {
-        "recipeId": "chipotle-honey-chicken-tenders",
-        "serves": 2
-      }
-    ],
+    "Wed": [],
     "Thu": [
       {
         "eid": "j5kb4g6",
@@ -34,5 +29,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786347324077
+  "updated": 1786347332370
 }
