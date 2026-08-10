@@ -1,7 +1,13 @@
 {
   "weekId": "2026-08-03",
   "plan": {
-    "Mon": [],
+    "Mon": [
+      {
+        "eid": "9iqvay9",
+        "recipeId": "spaghetti-bolognaise",
+        "serves": 4
+      }
+    ],
     "Tue": [],
     "Wed": [
       {
@@ -22,5 +28,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1785830899801
+  "updated": 1786347296691
 }
