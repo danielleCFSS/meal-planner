@@ -27,6 +27,11 @@
       {
         "recipeId": "prawn-red-pepper-orzo",
         "serves": 2
+      },
+      {
+        "eid": "x1qicg1",
+        "recipeId": "spaghetti-bolognaise",
+        "serves": 4
       }
     ],
     "Thu": [
@@ -41,5 +46,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786382173725
+  "updated": 1786382183709
 }
