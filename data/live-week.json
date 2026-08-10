@@ -1,1 +1,40 @@
-{"weekId": "2026-08-10", "plan": {"Mon": [{"recipeId": "honey-sriracha-chicken", "serves": 2}], "Tue": [{"recipeId": "steak-wraps", "serves": 2}], "Wed": [{"recipeId": "prawn-red-pepper-orzo", "serves": 2}], "Thu": [{"recipeId": "salmon-poke-bowl", "serves": 2}], "Fri": [], "Sat": [], "Sun": []}, "dayGuests": {}, "household": 2, "updated": "20260810160609"}
+{
+  "weekId": "2026-08-10",
+  "plan": {
+    "Mon": [
+      {
+        "recipeId": "honey-sriracha-chicken",
+        "serves": 2
+      },
+      {
+        "eid": "97u3my5",
+        "recipeId": "chicken-biryani",
+        "serves": 4
+      }
+    ],
+    "Tue": [
+      {
+        "recipeId": "steak-wraps",
+        "serves": 2
+      }
+    ],
+    "Wed": [
+      {
+        "recipeId": "prawn-red-pepper-orzo",
+        "serves": 2
+      }
+    ],
+    "Thu": [
+      {
+        "recipeId": "salmon-poke-bowl",
+        "serves": 2
+      }
+    ],
+    "Fri": [],
+    "Sat": [],
+    "Sun": []
+  },
+  "dayGuests": {},
+  "household": 2,
+  "updated": 1786382155668
+}
