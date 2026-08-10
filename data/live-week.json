@@ -27,11 +27,6 @@
         "eid": "j5kb4g6",
         "recipeId": "chilli-con-carne",
         "serves": 4
-      },
-      {
-        "eid": "3haj7hq",
-        "recipeId": "chicken-bacon-pie",
-        "serves": 6
       }
     ],
     "Fri": [],
@@ -40,5 +35,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786347386961
+  "updated": 1786347406119
 }
