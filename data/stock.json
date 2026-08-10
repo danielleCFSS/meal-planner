@@ -2,7 +2,7 @@
   "cupboards": [
     {
       "name": "Bulgar wheat",
-      "qty": "3.5 packs"
+      "qty": "About 3.25 packs"
     },
     {
       "name": "Lasagne sheets",
@@ -18,15 +18,10 @@
     },
     {
       "name": "Orzo",
-      "qty": "1.75 packs"
+      "qty": "About 1.45 packs"
     }
   ],
-  "freezer": [
-    {
-      "name": "Honey & sriracha chicken (cooked)",
-      "qty": "1 x 2-portion tub"
-    }
-  ],
+  "freezer": [],
   "stockTakes": {
     "cupboards": "2026-06-28",
     "fridge": "2026-06-28"

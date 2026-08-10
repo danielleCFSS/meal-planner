@@ -10,7 +10,7 @@
       "from": "Jack",
       "date": "2026-07-12",
       "status": "scheduled",
-      "statusNote": "Built it and planned for Wednesday, your quietest evening. That garlic sauce sounds worth it."
+      "statusNote": "Planned for Tuesday 11 August. It got bumped last week when the week was swapped around, so it goes in first this time. Quick enough to do straight after Frank's jabs."
     },
     {
       "id": "lc8drgm",
@@ -22,7 +22,7 @@
       "from": "Jack",
       "date": "2026-07-12",
       "status": "parked",
-      "statusNote": "Got the full shawarma recipe and saved it. It needs a long marinade and it is a big cook, so I am holding it for a quieter week."
+      "statusNote": "Got the full shawarma recipe and saved it. It needs a long marinade and it is a big cook, so I am holding it for a quieter, cooler week."
     },
     {
       "id": "xxbvef5",
@@ -34,7 +34,7 @@
       "from": "Jack",
       "date": "2026-07-14",
       "status": "parked",
-      "statusNote": "Your reel is the oven-grilled chicken wraps, I saved that recipe. It needs marinating ahead, so saving it for a calmer week."
+      "statusNote": "Your reel is the oven-grilled chicken wraps, I saved that recipe. It needs marinating ahead and a hot oven, so it is waiting for a calmer, cooler week."
     },
     {
       "id": "p80zm16",
@@ -61,18 +61,6 @@
       "statusNote": "I opened the reel but the caption has no written recipe and the method is only shown in the video, so I can't build it accurately without guessing. Could you send the ingredients and steps, or a screenshot of the recipe? Then I'll add it properly."
     },
     {
-      "id": "f2i3wgc",
-      "type": "new",
-      "name": "Jacket Potatoe (Beans, Cheese, Coleslaw & Crispy On)",
-      "link": "",
-      "note": "",
-      "images": [],
-      "from": "Jack",
-      "date": "2026-07-23",
-      "status": "scheduled",
-      "statusNote": "Built it and planned for Monday, your busiest day. It looks after itself in the oven while you host the practice group, so it is the easiest possible start to the week."
-    },
-    {
       "id": "30h512e",
       "type": "new",
       "name": "Minced meat cups",
@@ -94,7 +82,7 @@
       "from": "Jack",
       "date": "2026-07-27",
       "status": "needs-info",
-      "statusNote": "This is Jack Munn\u2019s chicken gyros and the full recipe lives in his Gather Round app, not the caption. Screenshot the recipe from the app and I will build it in. You had this in twice, so I have folded the two into one."
+      "statusNote": "This is Jack Munn’s chicken gyros and the full recipe lives in his Gather Round app, not the caption. Screenshot the recipe from the app and I will build it in. You had this in twice, so I have folded the two into one."
     },
     {
       "id": "hnpzwqn",
@@ -105,8 +93,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-28",
-      "status": "scheduled",
-      "statusNote": "Built it and planned for Wednesday, the clearest evening this week. Written for the air fryer, with chipotle paste standing in for the adobo tin, which is easier to find here."
+      "status": "parked",
+      "statusNote": "Built and ready to go, but it got bumped last week and this week hits 33 and 35 degrees. Breading, an air fryer and oven chips is not a heatwave dinner, so I am holding it for the first cooler week. It is next in line."
     },
     {
       "id": "rimxwfz",
