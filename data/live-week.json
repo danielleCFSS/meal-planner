@@ -14,10 +14,6 @@
     ],
     "Tue": [
       {
-        "recipeId": "steak-wraps",
-        "serves": 2
-      },
-      {
         "eid": "abbstr5",
         "recipeId": "oven-grilled-chicken-wraps",
         "serves": 4
@@ -51,5 +47,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786382204500
+  "updated": 1786463485448
 }
