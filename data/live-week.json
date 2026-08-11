@@ -3,10 +3,6 @@
   "plan": {
     "Mon": [
       {
-        "recipeId": "honey-sriracha-chicken",
-        "serves": 2
-      },
-      {
         "eid": "97u3my5",
         "recipeId": "chicken-biryani",
         "serves": 4
@@ -47,5 +43,5 @@
   },
   "dayGuests": {},
   "household": 2,
-  "updated": 1786463485448
+  "updated": 1786463488173
 }
