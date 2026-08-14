@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "id": "hnpzwqn",
+      "type": "new",
+      "name": "Chicken Tenders",
+      "link": "https://www.instagram.com/reel/DasuCCnxyIB/?igsh=MWdya3Y5amdwZHU5ag==",
+      "note": "",
+      "images": [],
+      "from": "Jack",
+      "date": "2026-07-28",
+      "status": "scheduled",
+      "statusNote": "Planned for Tuesday 18 August. Bumped twice, so it goes in first this week. The heat has broken and Danielle is free from 3, so there is room for the breading and the glaze."
+    },
+    {
       "id": "uddigo9",
       "type": "new",
       "name": "Steak Wraps",
@@ -9,8 +21,8 @@
       "images": [],
       "from": "Jack",
       "date": "2026-07-12",
-      "status": "scheduled",
-      "statusNote": "Planned for Tuesday 11 August. It got bumped last week when the week was swapped around, so it goes in first this time. Quick enough to do straight after Frank's jabs."
+      "status": "parked",
+      "statusNote": "These were planned for Tuesday 11 August but the app shows the oven-grilled wraps went in that night instead, so I do not know whether they happened. Holding them for the first week you are both back from Portugal. Tick them off in the app if you did make them."
     },
     {
       "id": "lc8drgm",
@@ -22,19 +34,19 @@
       "from": "Jack",
       "date": "2026-07-12",
       "status": "parked",
-      "statusNote": "Got the full shawarma recipe and saved it. It needs a long marinade and it is a big cook, so I am holding it for a quieter, cooler week."
+      "statusNote": "The full shawarma recipe is saved and ready. It needs a long marinade and it is a big cook, and this week is egg collection plus flying out on Saturday, so it waits for the first proper week back."
     },
     {
-      "id": "xxbvef5",
+      "id": "rimxwfz",
       "type": "new",
-      "name": "Bone-In Chicken & Fries Wrap",
-      "link": "https://www.instagram.com/reel/Dax9D5BIg9x/?igsh=MXBlOHp4dmx5bjMyaw==",
+      "name": "Crispy Chicken Shawarma",
+      "link": "https://www.instagram.com/reel/Datz_4VgVNI/?igsh=NG1jYW5ldDF3d2p1",
       "note": "",
       "images": [],
       "from": "Jack",
-      "date": "2026-07-14",
+      "date": "2026-07-30",
       "status": "parked",
-      "statusNote": "Your reel is the oven-grilled chicken wraps, I saved that recipe. It needs marinating ahead and a hot oven, so it is waiting for a calmer, cooler week."
+      "statusNote": "Same crispy chicken shawarma I already saved from your July request. Still a marinade-ahead big cook, so it waits for the first proper week back from Portugal."
     },
     {
       "id": "p80zm16",
@@ -82,31 +94,7 @@
       "from": "Jack",
       "date": "2026-07-27",
       "status": "needs-info",
-      "statusNote": "This is Jack Munn’s chicken gyros and the full recipe lives in his Gather Round app, not the caption. Screenshot the recipe from the app and I will build it in. You had this in twice, so I have folded the two into one."
-    },
-    {
-      "id": "hnpzwqn",
-      "type": "new",
-      "name": "Chicken Tenders",
-      "link": "https://www.instagram.com/reel/DasuCCnxyIB/?igsh=MWdya3Y5amdwZHU5ag==",
-      "note": "",
-      "images": [],
-      "from": "Jack",
-      "date": "2026-07-28",
-      "status": "parked",
-      "statusNote": "Built and ready to go, but it got bumped last week and this week hits 33 and 35 degrees. Breading, an air fryer and oven chips is not a heatwave dinner, so I am holding it for the first cooler week. It is next in line."
-    },
-    {
-      "id": "rimxwfz",
-      "type": "new",
-      "name": "Crispy Chicken Shawarma",
-      "link": "https://www.instagram.com/reel/Datz_4VgVNI/?igsh=NG1jYW5ldDF3d2p1",
-      "note": "",
-      "images": [],
-      "from": "Jack",
-      "date": "2026-07-30",
-      "status": "parked",
-      "statusNote": "No written recipe on this reel, but it is the same crispy chicken shawarma I already saved from your July request. Still holding it for a quieter cooking week, it is a marinade-ahead big cook."
+      "statusNote": "This is Jack Munn's chicken gyros and the full recipe lives in his Gather Round app, not the caption. Screenshot the recipe from the app and I will build it in. You had this in twice, so I have folded the two into one."
     }
   ]
 }
